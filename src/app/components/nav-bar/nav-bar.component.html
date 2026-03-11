@@ -1,0 +1,16 @@
+<header class="h-[76px] bg-white w-full flex items-center justify-between px-8 border-b border-gray-100 shrink-0">
+<div class="w-full flex justify-end">
+        <div class=" flex-shrink-0 items-center gap-6">
+
+
+        <div *ngIf="adminProfile?.profileImage"
+            class="h-9 w-9 rounded-full bg-[#ff9b70] text-white flex items-center justify-center cursor-pointer shadow-sm overflow-hidden">
+            <img [src]="adminProfile.profileImage" alt="Profile" class="w-full h-full object-cover">
+        </div>
+        <div *ngIf="!adminProfile?.profileImage"
+            class="h-9 w-9 rounded-full bg-[#ff9b70] text-white flex items-center justify-center cursor-pointer shadow-sm">
+            <span class="material-symbols-outlined text-xl">person</span>
+        </div>
+    </div>
+</div>
+</header>

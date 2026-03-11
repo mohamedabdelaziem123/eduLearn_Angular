@@ -1,0 +1,50 @@
+<aside class="w-[260px] flex-shrink-0 bg-[#20213d] text-white flex flex-col justify-between h-full">
+    <div>
+        <div class="p-6 flex flex-col mt-2">
+            <div class="flex items-center gap-3">
+                <div class="bg-[#2563eb] rounded-lg p-1.5 flex items-center justify-center">
+                    <span class="material-symbols-outlined text-white text-xl">school</span>
+                </div>
+                <div>
+                    <h1 class="text-white text-xl font-bold tracking-wide leading-tight">eduLearn</h1>
+                    <p class="text-[11px] font-medium text-slate-400 leading-tight">Admin Dashboard</p>
+                </div>
+            </div>
+        </div>
+
+        <nav class="px-4 mt-4 space-y-1.5">
+            <a routerLink="/home"
+                [class]="activeRoute === 'dashboard' ? 'flex items-center gap-4 px-4 py-3 rounded-xl bg-[#1d1ed9] text-white shadow-md transition-colors cursor-pointer' : 'flex items-center gap-4 px-4 py-3 rounded-xl text-slate-300 hover:bg-[#2d2e4d] transition-colors cursor-pointer'">
+                <span class="material-symbols-outlined text-[22px]">grid_view</span>
+                <span class="text-sm"
+                    [ngClass]="activeRoute === 'dashboard' ? 'font-semibold' : 'font-medium'">Dashboard</span>
+            </a>
+            <a routerLink="/dashboard/teachers"
+                [class]="activeRoute === 'teachers' ? 'flex items-center gap-4 px-4 py-3 rounded-xl bg-[#1d1ed9] text-white shadow-md transition-colors cursor-pointer' : 'flex items-center gap-4 px-4 py-3 rounded-xl text-slate-300 hover:bg-[#2d2e4d] transition-colors cursor-pointer'">
+                <span class="material-symbols-outlined text-[22px]">school</span>
+                <span class="text-sm"
+                    [ngClass]="activeRoute === 'teachers' ? 'font-semibold' : 'font-medium'">Teachers</span>
+            </a>
+            <a routerLink="/dashboard/courses"
+                [class]="activeRoute === 'courses' ? 'flex items-center gap-4 px-4 py-3 rounded-xl bg-[#1d1ed9] text-white shadow-md transition-colors cursor-pointer' : 'flex items-center gap-4 px-4 py-3 rounded-xl text-slate-300 hover:bg-[#2d2e4d] transition-colors cursor-pointer'">
+                <span class="material-symbols-outlined text-[22px]">auto_stories</span>
+                <span class="text-sm"
+                    [ngClass]="activeRoute === 'courses' ? 'font-semibold' : 'font-medium'">Courses</span>
+            </a>
+            <a routerLink="/dashboard/students"
+                [class]="activeRoute === 'students' ? 'flex items-center gap-4 px-4 py-3 rounded-xl bg-[#1d1ed9] text-white shadow-md transition-colors cursor-pointer' : 'flex items-center gap-4 px-4 py-3 rounded-xl text-slate-300 hover:bg-[#2d2e4d] transition-colors cursor-pointer'">
+                <span class="material-symbols-outlined text-[22px]">group</span>
+                <span class="text-sm"
+                    [ngClass]="activeRoute === 'students' ? 'font-semibold' : 'font-medium'">Students</span>
+            </a>
+            <a class="flex items-center gap-4 px-4 py-3 rounded-xl text-slate-300 hover:bg-[#2d2e4d] transition-colors cursor-pointer"
+                [class.bg-[#1d1ed9]]="activeRoute === 'subjects'" [class.text-white]="activeRoute === 'subjects'"
+                [class.shadow-md]="activeRoute === 'subjects'">
+                <span class="material-symbols-outlined text-[22px]">book</span>
+                <span class="text-sm font-medium">Subjects</span>
+            </a>
+        </nav>
+    </div>
+
+
+</aside>

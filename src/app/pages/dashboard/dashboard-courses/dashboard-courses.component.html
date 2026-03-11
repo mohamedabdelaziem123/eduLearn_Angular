@@ -1,0 +1,243 @@
+<div class="flex h-screen w-full bg-[#f8f9fc] font-inter text-slate-800 overflow-hidden">
+
+    <app-side-bar [activeRoute]="'courses'"></app-side-bar>
+
+    <main class="flex-1 flex flex-col overflow-hidden">
+
+        <app-nav-bar [showFilter]="false" [showBell]="false"></app-nav-bar>
+
+        <div class="flex-1 overflow-y-auto p-8">
+            <div class="max-w-[1100px] mx-auto flex flex-col gap-6">
+
+                <div class="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-2">
+                    <div>
+                        <h2 class="text-[32px] font-extrabold text-[#111827] tracking-tight">Course Management</h2>
+                        <p class="text-slate-500 mt-1 text-[15px] font-medium">Manage and organize your institution's
+                            curriculum offerings</p>
+                    </div>
+                    <button routerLink="create"
+                        class="bg-[#1811c7] text-white px-5 py-3 rounded-full font-semibold flex items-center gap-2 hover:bg-[#120c9f] transition-all shadow-md shadow-blue-500/20 text-sm">
+                        <span class="material-symbols-outlined text-[20px]">add</span>
+                        Create New Course
+                    </button>
+                </div>
+
+                <div class="flex items-center gap-3 mb-4 mt-2">
+                    <div class="relative">
+                        <select [value]="selectedSubjectId" (change)="onSubjectChange($event)"
+                            class="appearance-none bg-white pr-10 pl-5 py-2.5 border border-gray-200 rounded-full text-[13px] text-slate-700 cursor-pointer shadow-sm font-semibold outline-none focus:ring-2 focus:ring-[#1811c7]/20 transition-all min-w-[180px]">
+                            <option value="">All Subjects</option>
+                            <option *ngFor="let subject of subjects" [value]="subject._id">{{ subject.name | titlecase
+                                }}</option>
+                        </select>
+                        <span
+                            class="material-symbols-outlined text-[18px] text-slate-400 absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none">expand_more</span>
+                    </div>
+
+
+
+                    <button (click)="resetFilters()"
+                        class="flex items-center gap-1.5 text-[13px] font-bold text-[#1811c7] hover:text-blue-900 ml-2 transition-colors">
+                        <span class="material-symbols-outlined text-lg">refresh</span> Reset Filters
+                    </button>
+                </div>
+
+                <div class="bg-white rounded-[24px] shadow-sm border border-gray-100 overflow-hidden mt-2">
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr class="border-b border-gray-100">
+                                <th
+                                    class="px-7 py-5 text-[11px] font-bold text-slate-400 uppercase tracking-widest w-[30%]">
+                                    Title</th>
+                                <th
+                                    class="px-6 py-5 text-[11px] font-bold text-slate-400 uppercase tracking-widest w-[15%]">
+                                    Subject</th>
+                                <th
+                                    class="px-6 py-5 text-[11px] font-bold text-slate-400 uppercase tracking-widest w-[20%]">
+                                    Assigned Teacher</th>
+                                <th
+                                    class="px-6 py-5 text-[11px] font-bold text-slate-400 uppercase tracking-widest w-[15%]">
+                                    Status</th>
+                                <th
+                                    class="px-6 py-5 text-[11px] font-bold text-slate-400 uppercase tracking-widest w-[10%]">
+                                    Date Created</th>
+                                <th
+                                    class="px-7 py-5 text-[11px] font-bold text-slate-400 uppercase tracking-widest text-right w-[10%]">
+                                    Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-gray-50">
+                            @for (course of courses; track course.id) {
+                            <tr class="hover:bg-slate-50/50 transition-colors group">
+                                <td class="px-7 py-5">
+                                    <div class="flex items-center gap-4">
+                                        <div
+                                            [class]="'h-11 w-11 rounded-full flex-shrink-0 font-bold flex items-center justify-center ' + course.iconBg + ' ' + course.iconColor">
+                                            <span class="material-symbols-outlined">{{ course.icon }}</span>
+                                        </div>
+                                        <div>
+                                            <p class="font-bold text-slate-900 text-[15px] leading-tight">{{
+                                                course.title }}</p>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="px-6 py-5 text-[14px] font-medium text-slate-500">{{ course.subject }}</td>
+                                <td class="px-6 py-5">
+                                    <div class="flex items-center gap-3">
+                                        <img *ngIf="course.teacherImage" [src]="course.teacherImage"
+                                            class="h-8 w-8 rounded-full object-cover shadow-sm bg-slate-200" />
+                                        <span class="font-medium text-slate-700 text-[14px]">{{ course.teacherName
+                                            }}</span>
+                                    </div>
+                                </td>
+                                <td class="px-6 py-5">
+                                    @if (course.status === 'Published') {
+                                    <span
+                                        class="inline-flex items-center justify-center px-3.5 py-1.5 rounded-full text-[12px] font-bold bg-[#e0f5e9] text-[#168a4e]">Published</span>
+                                    } @else if (course.status === 'In Progress') {
+                                    <span
+                                        class="inline-flex items-center justify-center px-4 py-1.5 rounded-full text-[12px] font-bold bg-[#e6efff] text-[#2563eb]">In
+                                        Progress</span>
+                                    } @else if (course.status === 'Draft') {
+                                    <span
+                                        class="inline-flex items-center justify-center px-3.5 py-1.5 rounded-full text-[12px] font-bold bg-slate-100 text-slate-600">Draft</span>
+                                    } @else {
+                                    <span
+                                        class="inline-flex items-center justify-center px-3.5 py-1.5 rounded-full text-[12px] font-bold bg-slate-100 text-slate-400">Archived</span>
+                                    }
+                                </td>
+                                <td class="px-6 py-5 text-[13px] font-medium text-slate-500 whitespace-nowrap">{{
+                                    course.dateCreated }}</td>
+                                <td class="px-7 py-5 text-right relative">
+                                    <div class="flex items-center justify-end gap-3 text-slate-400">
+                                        <button [routerLink]="['/dashboard/courses/edit', course.id]"
+                                            class="hover:text-[#1811c7] transition-colors" title="Edit Course">
+                                            <span class="material-symbols-outlined text-[20px]">edit_note</span>
+                                        </button>
+                                        <button (click)="deleteCourse(course.id)"
+                                            class="hover:text-red-500 transition-colors" title="Delete Course">
+                                            <span class="material-symbols-outlined text-[20px]">delete</span>
+                                        </button>
+                                        <button (click)="toggleDropdown(course.id); $event.stopPropagation()"
+                                            class="hover:text-slate-700 transition-colors outline-none"
+                                            title="More Actions">
+                                            <span class="material-symbols-outlined text-[20px]">more_vert</span>
+                                        </button>
+                                    </div>
+
+                                    <!-- Dropdown Menu -->
+                                    <div *ngIf="activeDropdownId === course.id" (clickOutside)="closeDropdown()"
+                                        class="absolute right-7 top-12 w-48 bg-white shadow-xl rounded-xl border border-gray-100 z-10 py-2">
+
+                                        <!-- Start Progress Option -->
+                                        <button *ngIf="course.rawStatus === 'draft'"
+                                            (click)="updateStatus(course, 'start')"
+                                            class="w-full text-left px-4 py-2 hover:bg-slate-50 text-[13px] font-medium text-blue-600 flex items-center gap-2 transition-colors">
+                                            <span class="material-symbols-outlined text-[18px]">play_arrow</span> Start
+                                            Progress
+                                        </button>
+
+                                        <!-- Publish Option -->
+                                        <button
+                                            *ngIf="course.rawStatus !== 'published' && course.rawStatus !== 'archived'"
+                                            (click)="updateStatus(course, 'publish')"
+                                            class="w-full text-left px-4 py-2 hover:bg-slate-50 text-[13px] font-medium text-slate-700 flex items-center gap-2 transition-colors">
+                                            <span class="material-symbols-outlined text-[18px]">publish</span> Publish
+                                        </button>
+
+                                        <!-- Unpublish Option -->
+                                        <button *ngIf="course.rawStatus === 'published'"
+                                            (click)="updateStatus(course, 'unpublish')"
+                                            class="w-full text-left px-4 py-2 hover:bg-slate-50 text-[13px] font-medium text-slate-700 flex items-center gap-2 transition-colors">
+                                            <span class="material-symbols-outlined text-[18px]">unpublished</span>
+                                            Unpublish
+                                        </button>
+
+                                        <!-- Unarchive Option -->
+                                        <button *ngIf="course.rawStatus === 'archived'"
+                                            (click)="updateStatus(course, 'unarchive')"
+                                            class="w-full text-left px-4 py-2 hover:bg-slate-50 text-[13px] font-medium text-slate-700 flex items-center gap-2 transition-colors">
+                                            <span class="material-symbols-outlined text-[18px]">unarchive</span>
+                                            Unarchive
+                                        </button>
+
+                                        <!-- Archive Option -->
+                                        <button *ngIf="course.rawStatus !== 'archived'"
+                                            (click)="updateStatus(course, 'archive')"
+                                            class="w-full text-left px-4 py-2 hover:bg-slate-50 text-[13px] font-medium text-red-600 flex items-center gap-2 transition-colors">
+                                            <span class="material-symbols-outlined text-[18px]">archive</span> Archive
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                            }
+                        </tbody>
+                    </table>
+
+                    <div class="px-7 py-4 border-t border-gray-100 flex items-center justify-between bg-white">
+                        <span class="text-[13px] font-medium text-slate-400 uppercase tracking-wider"
+                            *ngIf="docCount > 0">
+                            Showing {{ courses.length }} of {{ docCount }} courses
+                        </span>
+                        <span class="text-[13px] font-medium text-slate-400 uppercase tracking-wider"
+                            *ngIf="docCount === 0">
+                            No courses available
+                        </span>
+
+                        <div class="flex items-center gap-1.5" *ngIf="pagesArray.length > 1">
+                            <button (click)="goToPage(currentPage - 1)" [disabled]="currentPage === 1"
+                                class="h-9 w-9 rounded-full flex items-center justify-center border border-gray-200 text-slate-400 hover:bg-slate-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
+                                <span class="material-symbols-outlined text-[18px]">chevron_left</span>
+                            </button>
+
+                            <button *ngFor="let page of pagesArray" (click)="goToPage(page)"
+                                [class]="currentPage === page ? 'h-9 w-9 rounded-full bg-[#1811c7] text-white font-bold text-sm shadow-sm flex items-center justify-center' : 'h-9 w-9 rounded-full text-slate-700 font-bold hover:bg-slate-50 text-sm flex items-center justify-center transition-colors'">
+                                {{ page }}
+                            </button>
+
+                            <button (click)="goToPage(currentPage + 1)" [disabled]="currentPage === totalPages"
+                                class="h-9 w-9 rounded-full flex items-center justify-center border border-gray-200 text-slate-400 hover:bg-slate-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
+                                <span class="material-symbols-outlined text-[18px]">chevron_right</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-5 mt-4 pb-8">
+                    <div
+                        class="bg-[#1811c7] text-white p-6 rounded-[28px] shadow-lg shadow-blue-500/10 flex flex-col justify-between">
+                        <p class="text-[15px] font-medium text-white/80">Total Courses</p>
+                        <p class="text-[36px] font-black leading-none mt-2">{{ docCount }}</p>
+                        <p class="text-[13px] font-bold text-white mt-5 flex items-center gap-1.5">
+                            <span class="material-symbols-outlined text-[15px]" *ngIf="docCount > 0">sync</span>
+                            <span *ngIf="docCount > 0">Live Data</span>
+                        </p>
+                    </div>
+
+
+
+                    <div
+                        class="bg-white p-6 rounded-[28px] shadow-sm border border-gray-100 flex flex-col justify-between">
+                        <p class="text-[15px] font-medium text-slate-500">Published</p>
+                        <p class="text-[36px] font-black text-[#111827] leading-none mt-2">{{ totalPublished }}</p>
+                        <p class="text-[13px] text-slate-400 mt-5 flex items-center gap-1.5 font-semibold">
+                            <span class="material-symbols-outlined text-[15px]">check_circle</span>
+                            <span *ngIf="totalPublished > 0">Stable curriculum</span>
+                        </p>
+                    </div>
+
+                    <div
+                        class="bg-white p-6 rounded-[28px] shadow-sm border border-gray-100 flex flex-col justify-between">
+                        <p class="text-[15px] font-medium text-slate-500">Draft Proposals</p>
+                        <p class="text-[36px] font-black text-[#111827] leading-none mt-2">{{ totalDraft }}</p>
+                        <p class="text-[13px] text-[#0ea5e9] mt-5 flex items-center gap-1.5 font-bold">
+                            <span class="material-symbols-outlined text-[15px]">hourglass_empty</span>
+                            <span *ngIf="totalDraft > 0">Awaiting review</span>
+                        </p>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </main>
+</div>

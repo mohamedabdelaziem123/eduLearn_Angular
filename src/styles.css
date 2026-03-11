@@ -1,1 +1,58 @@
-/* You can add global styles to this file, and also import other style files */
+/* Google Fonts – Inter (MUST BE AT THE TOP) */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+/* Tailwind directives */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Global base overrides */
+@layer base {
+  * {
+    box-sizing: border-box;
+  }
+  body {
+    font-family: 'Inter', sans-serif;
+    margin: 0;
+  }
+
+  @keyframes slideUp {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+}
+
+/* Reusable auth component classes via @layer components */
+@layer components {
+
+  /* ── Spinner animation ── */
+  .spinner {
+    @apply inline-block w-5 h-5 border-4 border-white/30 border-t-white rounded-full animate-spin;
+  }
+
+  /* ── Input base style ── */
+  .auth-input {
+    @apply w-full pl-10 pr-4 py-3 bg-navy-50 border border-navy-100 rounded-xl text-navy-900
+           text-sm placeholder-gray-400 outline-none transition-all duration-200
+           focus:border-navy-800 focus:ring-2 focus:ring-navy-800/10 focus:bg-white;
+  }
+
+  .auth-input.invalid {
+    @apply border-red-400 ring-2 ring-red-100;
+  }
+
+  /* ── Primary button ── */
+  .btn-navy {
+    @apply w-full py-3 bg-gradient-to-r from-navy-800 to-navy-600 text-white font-semibold
+           rounded-xl text-base tracking-wide shadow-lg transition-all duration-200
+           hover:opacity-90 hover:-translate-y-0.5 hover:shadow-xl
+           active:translate-y-0 disabled:opacity-60 disabled:cursor-not-allowed
+           flex items-center justify-center;
+  }
+}

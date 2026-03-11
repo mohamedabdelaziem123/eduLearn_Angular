@@ -1,0 +1,176 @@
+<div class="flex h-screen bg-[#f8f9fc] font-sans">
+    <app-side-bar [activeRoute]="'courses'"></app-side-bar>
+
+    <div class="flex-1 flex flex-col min-w-0 overflow-hidden">
+        <!-- Navbar -->
+        <app-nav-bar [showFilter]="false" [showBell]="true"></app-nav-bar>
+
+        <main class="flex-1 overflow-y-auto w-full">
+            <!-- Dashboard Content -->
+            <div class="p-8 max-w-[1200px] mx-auto">
+
+                <!-- Breadcrumbs -->
+                <div class="flex items-center text-[13px] font-semibold text-slate-500 gap-2 mb-8 w-fit text-blue-600">
+                    <a routerLink="/dashboard" class="hover:text-blue-800 transition-colors cursor-pointer">Admin</a>
+                    <span class="material-symbols-outlined text-[14px] text-slate-400">chevron_right</span>
+                    <a routerLink="/dashboard/courses"
+                        class="hover:text-blue-800 transition-colors cursor-pointer">Courses</a>
+                    <span class="material-symbols-outlined text-[14px] text-slate-400">chevron_right</span>
+                    <span class="text-blue-700 font-bold">Create/Edit</span>
+                </div>
+
+                <!-- Dashboard Header -->
+                <div class="mb-8">
+                    <h1 class="text-[28px] font-bold text-slate-900 tracking-tight">{{ isEditMode ? 'Edit Course' :
+                        'Create Course' }}</h1>
+                    <p class="text-[15px] text-slate-500 mt-1 font-medium">Manage course information, curriculum
+                        details, and instructor assignments.</p>
+                </div>
+
+                <!-- Two Column View -->
+                <form [formGroup]="courseForm" (ngSubmit)="onSubmit()" class="flex flex-col lg:flex-row gap-8">
+
+                    <!-- Left Column: Primary Form Settings -->
+                    <div class="flex-1 flex flex-col gap-6">
+                        <div class="bg-white p-8 rounded-[32px] shadow-sm border border-gray-100 flex flex-col gap-6">
+
+                            <!-- Title -->
+                            <div>
+                                <label class="block text-[13px] font-bold text-slate-800 mb-2">Course Title</label>
+                                <input type="text" formControlName="title"
+                                    placeholder="e.g. Advanced Data Structures & Algorithms"
+                                    class="w-full h-11 px-4 bg-[#f8f9fb] border border-gray-200 rounded-full text-[14px] text-slate-700 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-[#1811c7]/20 focus:border-[#1811c7]/50 transition-all font-medium">
+                            </div>
+
+                            <!-- Description -->
+                            <div>
+                                <label class="block text-[13px] font-bold text-slate-800 mb-2">Course
+                                    Description</label>
+                                <textarea formControlName="description"
+                                    placeholder="Describe the course goals, syllabus, and what students will learn..."
+                                    class="w-full h-36 px-5 py-4 bg-[#f8f9fb] border border-gray-200 rounded-[24px] text-[14px] text-slate-700 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-[#1811c7]/20 focus:border-[#1811c7]/50 transition-all font-medium resize-none"></textarea>
+                            </div>
+
+                            <!-- Row: Specialty & Teacher -->
+                            <div class="flex flex-col md:flex-row gap-6">
+                                <div class="flex-1">
+                                    <label class="block text-[13px] font-bold text-slate-800 mb-2">Specialty /
+                                        Subject</label>
+                                    <div class="relative">
+                                        <select formControlName="subjectId"
+                                            class="w-full h-11 px-4 bg-[#f8f9fb] border border-gray-200 rounded-full text-[14px] text-slate-700 appearance-none focus:outline-none focus:ring-2 focus:ring-[#1811c7]/20 focus:border-[#1811c7]/50 transition-all font-medium cursor-pointer">
+                                            <option value="" disabled selected>Select Specialty</option>
+                                            <option *ngFor="let subject of subjects" [value]="subject._id">{{
+                                                subject.name }}</option>
+                                        </select>
+                                        <span
+                                            class="material-symbols-outlined absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none text-[20px]">expand_more</span>
+                                    </div>
+                                </div>
+
+                                <div class="flex-1">
+                                    <label class="block text-[13px] font-bold text-slate-800 mb-2">Teacher
+                                        Assignment</label>
+                                    <div class="relative">
+                                        <select formControlName="teacherId"
+                                            class="w-full h-11 px-4 bg-[#f8f9fb] border border-gray-200 rounded-full text-[14px] text-slate-700 appearance-none focus:outline-none focus:ring-2 focus:ring-[#1811c7]/20 focus:border-[#1811c7]/50 transition-all font-medium cursor-pointer">
+                                            <option value="" disabled selected>Select Instructor</option>
+                                            <option value="699ce46c86413bae7db7ca77">Ahmed Hassan</option>
+                                        </select>
+                                        <span
+                                            class="material-symbols-outlined absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none text-[20px]">expand_more</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+
+                        <!-- Footer Actions -->
+                        <div class="flex items-center justify-end gap-6 mt-2 pb-10">
+                            <button type="button" routerLink="/dashboard/courses"
+                                class="text-[14px] font-bold text-slate-600 hover:text-slate-900 transition-colors">Cancel</button>
+                            <button type="submit" [disabled]="courseForm.invalid || isSubmitting"
+                                class="h-11 px-8 bg-[#1811c7] hover:bg-blue-800 text-white text-[14px] font-bold rounded-full shadow-lg shadow-blue-900/20 transition-all flex items-center justify-center gap-2 relative overflow-hidden group disabled:opacity-50 disabled:cursor-not-allowed">
+                                <span class="material-symbols-outlined text-[18px]" *ngIf="!isSubmitting">save</span>
+                                <span class="material-symbols-outlined text-[18px] animate-spin"
+                                    *ngIf="isSubmitting">progress_activity</span>
+                                {{ isSubmitting ? 'Saving...' : 'Save Course' }}
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Right Column: Thumbnail & Stats -->
+                    <div class="w-full lg:w-[320px] xl:w-[380px] flex flex-col gap-6">
+                        <!-- Course Thumbnail Box -->
+                        <div class="bg-white p-8 rounded-[32px] shadow-sm border border-gray-100 pb-10">
+                            <h2 class="text-[14px] font-bold text-slate-800 mb-4">Course Thumbnail</h2>
+
+                            <!-- Upload Area -->
+                            <div (click)="fileInput.click()" *ngIf="!imagePreview"
+                                class="border-2 border-dashed border-[#b8b3f2] bg-[#f8f9ff] rounded-[40px] p-8 flex flex-col items-center justify-center text-center cursor-pointer hover:bg-indigo-50 transition-colors group mb-6">
+                                <input type="file" #fileInput class="hidden" (change)="onFileSelected($event)"
+                                    accept="image/png, image/jpeg, image/webp">
+                                <div
+                                    class="w-12 h-12 bg-[#a39eff] rounded-full flex items-center justify-center text-white mb-3 shadow-md">
+                                    <span class="material-symbols-outlined text-[24px]">cloud_upload</span>
+                                </div>
+                                <p class="text-[14px] font-bold text-slate-700 mb-1">Drop image here or<br>click to
+                                    upload</p>
+                                <p class="text-[11px] font-medium text-slate-400 leading-tight">PNG, JPG up to 5MB
+                                    (16:9<br>recommended)</p>
+                            </div>
+
+                            <!-- Preview Area -->
+                            <div *ngIf="imagePreview"
+                                class="relative rounded-[32px] overflow-hidden mb-6 group cursor-pointer"
+                                (click)="fileInput.click()">
+                                <input type="file" #fileInput class="hidden" (change)="onFileSelected($event)"
+                                    accept="image/png, image/jpeg, image/webp">
+                                <img [src]="imagePreview" alt="Course Thumbnail"
+                                    class="w-full h-auto object-cover aspect-video">
+                                <div
+                                    class="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                                    <span class="material-symbols-outlined text-white text-[32px]">edit</span>
+                                </div>
+                            </div>
+
+                            <!-- Info Alert -->
+                            <div class="bg-[#e0fbff] rounded-[24px] p-5 flex items-start gap-3">
+                                <div
+                                    class="w-5 h-5 rounded-full bg-[#00d4ff] flex items-center justify-center shrink-0 mt-0.5">
+                                    <span class="material-symbols-outlined text-white text-[14px]">info</span>
+                                </div>
+                                <p class="text-[12px] font-medium text-slate-700 leading-relaxed">Ensure your thumbnail
+                                    is high-resolution to appear clearly on student dashboards.</p>
+                            </div>
+                        </div>
+
+                        <!-- Quick Stats -->
+                        <div class="bg-white p-8 rounded-[32px] shadow-sm border border-gray-100">
+                            <h2 class="text-[14px] font-bold text-slate-800 mb-6">Quick Stats</h2>
+
+                            <div class="flex flex-col gap-5">
+                                <div class="flex items-center justify-between">
+                                    <span class="text-[13px] font-medium text-slate-500">Last Modified</span>
+                                    <span class="text-[13px] font-bold text-slate-900">{{ lastModified }}</span>
+                                </div>
+                                <div class="flex items-center justify-between">
+                                    <span class="text-[13px] font-medium text-slate-500">Current Status</span>
+                                    <span
+                                        class="px-3 py-1 bg-[#d1fae5] text-[#059669] text-[10px] font-extrabold uppercase tracking-wide rounded-full">{{
+                                        courseStatus }}</span>
+                                </div>
+                                <div class="flex items-center justify-between">
+                                    <span class="text-[13px] font-medium text-slate-500">Student Capacity</span>
+                                    <span class="text-[13px] font-bold text-slate-900">Unlimited</span>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </form>
+
+            </div>
+        </main>
+    </div>
+</div>
