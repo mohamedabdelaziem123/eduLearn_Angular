@@ -1,0 +1,99 @@
+<div class="flex flex-col min-h-screen w-full bg-[#f8f9fc] font-inter text-slate-800">
+    <app-nav-bar [isTeacherNav]="true" activeRoute="dashboard"></app-nav-bar>
+
+    <main class="flex-1 overflow-y-auto px-8 py-10">
+        <div class="max-w-[1280px] mx-auto flex flex-col gap-8">
+            
+            <!-- HEADER -->
+            <div class="flex flex-col">
+                <h2 class="text-[36px] font-extrabold text-[#111827] tracking-tight">My Courses</h2>
+                <p class="text-slate-500 mt-2 text-[16px] font-medium max-w-xl">
+                    Manage your assigned curriculum and monitor student progress across all active and upcoming modules.
+                </p>
+            </div>
+
+            <div *ngIf="isLoading" class="py-20 flex justify-center w-full">
+                <div class="animate-spin rounded-full h-10 w-10 border-b-2 border-[#1811c7]"></div>
+            </div>
+
+            <!-- COURSE GRID -->
+            <div *ngIf="!isLoading && courses.length > 0" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <div *ngFor="let course of courses" class="bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden flex flex-col group hover:shadow-md transition-all duration-300">
+                    
+                    <!-- Top Image Area -->
+                    <div class="relative h-[200px] w-full bg-slate-900 overflow-hidden">
+                        <img *ngIf="course.image" [src]="getImageUrl(course.image)" class="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity duration-300" [alt]="course.title">
+                        <div *ngIf="!course.image" [class]="'w-full h-full flex items-center justify-center opacity-80 ' + getSubjectIcon(course.subjectId?.name || course.subject?.name || course.subject).hue">
+                            <span class="material-symbols-outlined text-white text-[64px] opacity-50">{{ getSubjectIcon(course.subjectId?.name || course.subject?.name || course.subject).icon }}</span>
+                        </div>
+
+                        <!-- Status Badge -->
+                        <div class="absolute top-4 left-4">
+                            <span *ngIf="course.status === 'published' || course.status === 'Published'" class="inline-flex items-center justify-center px-3 py-1.5 rounded-full text-[10px] font-bold bg-[#2563eb] text-white tracking-widest uppercase shadow-sm">
+                                Published
+                            </span>
+                            <span *ngIf="course.status === 'inProgress' || course.status === 'in_progress' || course.status === 'In Progress'" class="inline-flex items-center justify-center px-3 py-1.5 rounded-full text-[10px] font-bold bg-[#f59e0b] text-white tracking-widest uppercase shadow-sm">
+                                In Progress
+                            </span>
+                        </div>
+                    </div>
+
+                    <!-- Content Area -->
+                    <div class="p-6 flex flex-col flex-1">
+                        <div class="mb-3 inline-flex">
+                            <span class="px-2.5 py-1 rounded bg-blue-50 text-blue-600 text-[10px] font-bold tracking-widest uppercase">
+                                {{ course.subjectId?.name || course.subject?.name || course.subject || 'General' }}
+                            </span>
+                        </div>
+                        
+                        <h3 class="text-[20px] font-bold text-slate-900 leading-tight mb-4 flex-1">{{ course.title }}</h3>
+                        
+                        <div class="flex items-center gap-6 mb-6 text-slate-500 font-medium text-[13px]">
+                            <div class="flex items-center gap-1.5">
+                                <span class="material-symbols-outlined text-[18px]">auto_stories</span>
+                                <span>{{ course.lessons?.length || 0 }} Lessons</span>
+                            </div>
+                            <div class="flex items-center gap-1.5">
+                                <span class="material-symbols-outlined text-[18px]">group</span>
+                                <span>{{ course.enrolledStudents || 0 }} Students</span>
+                            </div>
+                        </div>
+
+                        <div class="flex items-center gap-2 mt-auto">
+                            <button class="flex-1 bg-[#1e1b4b] text-white font-semibold py-3.5 rounded-xl text-[14px] flex items-center justify-center gap-2 hover:bg-[#312e81] shadow-md transition-all">
+                                Manage <span class="material-symbols-outlined text-[18px]">arrow_forward</span>
+                            </button>
+                            
+                            <!-- Publish Toggle Button -->
+                            <button *ngIf="course.status !== 'published' && course.status !== 'Published'" 
+                                    (click)="updateCourseStatus(course, 'publish')"
+                                    title="Publish Course"
+                                    class="bg-blue-50 text-blue-600 hover:bg-blue-600 hover:text-white border border-blue-200 h-[48px] px-4 rounded-xl flex items-center justify-center transition-all shadow-sm">
+                                <span class="material-symbols-outlined text-[20px]">rocket_launch</span>
+                            </button>
+                            
+                            <!-- Unpublish Toggle Button -->
+                            <button *ngIf="course.status === 'published' || course.status === 'Published'" 
+                                    (click)="updateCourseStatus(course, 'unpublish')"
+                                    title="Unpublish Course"
+                                    class="bg-amber-50 text-amber-600 hover:bg-amber-500 hover:text-white border border-amber-200 h-[48px] px-4 rounded-xl flex items-center justify-center transition-all shadow-sm">
+                                <span class="material-symbols-outlined text-[20px]">visibility_off</span>
+                            </button>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- Empty State -->
+            <div *ngIf="!isLoading && courses.length === 0" class="flex flex-col items-center justify-center py-20 bg-white rounded-3xl border border-dashed border-gray-200">
+                <div class="h-16 w-16 bg-slate-100 text-slate-400 rounded-full flex items-center justify-center mb-4">
+                    <span class="material-symbols-outlined text-[32px]">auto_stories</span>
+                </div>
+                <h3 class="text-lg font-bold text-slate-900">No Courses Found</h3>
+                <p class="text-slate-500 mt-1 max-w-sm text-center">You haven't been assigned to any curriculum modules yet.</p>
+            </div>
+
+        </div>
+    </main>
+</div>

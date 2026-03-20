@@ -1,16 +1,54 @@
-<header class="h-[76px] bg-white w-full flex items-center justify-between px-8 border-b border-gray-100 shrink-0">
-<div class="w-full flex justify-end">
-        <div class=" flex-shrink-0 items-center gap-6">
-
-
-        <div *ngIf="adminProfile?.profileImage"
-            class="h-9 w-9 rounded-full bg-[#ff9b70] text-white flex items-center justify-center cursor-pointer shadow-sm overflow-hidden">
-            <img [src]="adminProfile.profileImage" alt="Profile" class="w-full h-full object-cover">
+<header class="h-[76px] bg-white w-full flex items-center justify-between px-8 border-b border-gray-100 shrink-0 relative">
+    
+    <!-- LEFT: Logo (Only for Teacher Nav) -->
+    <div *ngIf="isTeacherNav" class="flex items-center gap-3 w-[250px]">
+        <div class="bg-[#2563eb] rounded-lg p-1.5 flex items-center justify-center">
+            <span class="material-symbols-outlined text-white text-xl">school</span>
         </div>
-        <div *ngIf="!adminProfile?.profileImage"
-            class="h-9 w-9 rounded-full bg-[#ff9b70] text-white flex items-center justify-center cursor-pointer shadow-sm">
-            <span class="material-symbols-outlined text-xl">person</span>
+        <div>
+            <h1 class="text-slate-900 text-xl font-bold tracking-wide leading-tight uppercase relative top-[2px]">eduLearn</h1>
         </div>
     </div>
-</div>
+
+    <!-- CENTER: Navigation Links (Only for Teacher Nav) -->
+    <div *ngIf="isTeacherNav" class="absolute left-1/2 -translate-x-1/2 hidden md:flex items-center gap-8 h-full">
+        <a routerLink="/dashboard/teacher-courses" 
+           [class]="activeRoute === 'dashboard' ? 'text-sm font-bold text-[#2563eb] h-full flex items-center border-b-[3px] border-[#2563eb] pt-[3px]' : 'text-sm font-semibold text-slate-500 hover:text-slate-900 h-full flex items-center border-b-[3px] border-transparent pt-[3px] transition-colors'">
+            Dashboard
+        </a>
+        <a routerLink="/login" 
+           [class]="activeRoute === 'courses' ? 'text-sm font-bold text-[#2563eb] h-full flex items-center border-b-[3px] border-[#2563eb] pt-[3px]' : 'text-sm font-semibold text-slate-500 hover:text-slate-900 h-full flex items-center border-b-[3px] border-transparent pt-[3px] transition-colors'">
+            Courses
+        </a>
+        <a routerLink="/teacher-quizzes" 
+           [class]="activeRoute === 'quizzes' ? 'text-sm font-bold text-[#2563eb] h-full flex items-center border-b-[3px] border-[#2563eb] pt-[3px]' : 'text-sm font-semibold text-slate-500 hover:text-slate-900 h-full flex items-center border-b-[3px] border-transparent pt-[3px] transition-colors'">
+            Quizzes
+        </a>
+        <a routerLink="/dashboard/teacher-questions" 
+           [class]="activeRoute === 'questions' ? 'text-sm font-bold text-[#2563eb] h-full flex items-center border-b-[3px] border-[#2563eb] pt-[3px]' : 'text-sm font-semibold text-slate-500 hover:text-slate-900 h-full flex items-center border-b-[3px] border-transparent pt-[3px] transition-colors'">
+            Questions
+        </a>
+    </div>
+
+    <!-- RIGHT: Profile & Actions (Always visible) -->
+    <div [class]="isTeacherNav ? 'flex justify-end w-[250px]' : 'w-full flex justify-end'">
+        <div class="flex-shrink-0 flex items-center gap-6">
+            
+            <!-- Notification Bell (If enabled) -->
+            <div *ngIf="showBell" class="relative cursor-pointer text-slate-400 hover:text-slate-600 transition-colors">
+                <span class="material-symbols-outlined text-[26px]">notifications</span>
+                <div class="absolute top-[2px] right-[4px] w-[8px] h-[8px] bg-red-500 rounded-full border border-white"></div>
+            </div>
+
+            <!-- Profile Circle -->
+            <div *ngIf="adminProfile?.profileImage"
+                class="h-9 w-9 rounded-full bg-[#92b1f5] text-white flex items-center justify-center cursor-pointer shadow-sm overflow-hidden border border-gray-100">
+                <img [src]="adminProfile.profileImage" alt="Profile" class="w-full h-full object-cover">
+            </div>
+            <div *ngIf="!adminProfile?.profileImage"
+                class="h-9 w-9 rounded-full bg-[#92b1f5] text-white flex items-center justify-center cursor-pointer shadow-sm">
+                <span class="material-symbols-outlined text-xl">person</span>
+            </div>
+        </div>
+    </div>
 </header>

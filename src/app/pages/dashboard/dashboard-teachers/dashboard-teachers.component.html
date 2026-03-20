@@ -28,21 +28,18 @@
                     class="bg-white rounded-[32px] p-6 mb-8 flex items-center gap-6 shadow-[0_2px_10px_-4px_rgba(0,0,0,0.05)] border border-gray-100">
                     <div class="flex-1 max-w-[300px]">
                         <label class="block text-[13px] font-bold text-slate-800 mb-2">Filter by Subjects</label>
-                        <div class="relative">
-                            <select
-                                class="w-full h-11 px-4 bg-[#f8f9fb] border border-gray-200 rounded-full text-[13px] text-slate-700 appearance-none focus:outline-none focus:ring-2 focus:ring-[#1811c7]/20 transition-all font-medium cursor-pointer">
-                                <option value="" selected>All Subjects</option>
-                                <option value="math">Mathematics</option>
-                                <option value="science">Science</option>
-                                <option value="history">History</option>
-                            </select>
-                            <span
-                                class="material-symbols-outlined absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none text-[20px]">expand_more</span>
+                        <div class="relative z-50">
+                            <app-dropdown-menu 
+                                [options]="subjectOptions"
+                                [selectedValue]="selectedSubject"
+                                (selectionChange)="onSubjectChange($event)"
+                                placeholder="All Subjects">
+                            </app-dropdown-menu>
                         </div>
                     </div>
 
                     <!-- Reset Button next to filters -->
-                    <button
+                    <button (click)="resetFilters()"
                         class="h-11 px-6 bg-white border border-gray-200 hover:bg-gray-50 text-slate-700 text-[13px] font-bold rounded-full transition-all mt-[26px]">
                         Reset Filters
                     </button>
@@ -60,7 +57,7 @@
                                         Name</th>
                                     <th
                                         class="px-4 py-5 text-[11px] font-extrabold text-[#7b87c7] uppercase tracking-wider w-[25%]">
-                                        Specialty</th>
+                                        Degree</th>
                                     <th
                                         class="px-4 py-5 text-[11px] font-extrabold text-[#7b87c7] uppercase tracking-wider w-[25%]">
                                         Email</th>
@@ -70,42 +67,63 @@
                                 </tr>
                             </thead>
                             <tbody class="divide-y divide-gray-50">
-                                <tr *ngFor="let teacher of teachers"
+                                <!-- Loading State -->
+                                <tr *ngIf="isLoadingTeachers">
+                                    <td colspan="4" class="px-8 py-12 text-center">
+                                        <div class="flex flex-col items-center justify-center gap-3">
+                                            <span class="material-symbols-outlined text-[32px] text-slate-400 animate-spin">progress_activity</span>
+                                            <p class="text-[14px] font-medium text-slate-500">Loading teachers...</p>
+                                        </div>
+                                    </td>
+                                </tr>
+
+                                <!-- Empty State -->
+                                <tr *ngIf="!isLoadingTeachers && teachers.length === 0">
+                                    <td colspan="4" class="px-8 py-12 text-center">
+                                        <div class="flex flex-col items-center justify-center gap-3">
+                                            <span class="material-symbols-outlined text-[48px] text-slate-300">person_off</span>
+                                            <p class="text-[14px] font-medium text-slate-500">No teachers found</p>
+                                        </div>
+                                    </td>
+                                </tr>
+
+                                <!-- Teacher Rows -->
+                                <tr *ngFor="let teacher of paginatedTeachers"
                                     class="hover:bg-slate-50/50 transition-colors group">
                                     <td class="px-8 py-5">
                                         <div class="flex items-center gap-4">
                                             <div
-                                                class="w-11 h-11 rounded-full overflow-hidden bg-slate-100 shrink-0 shadow-sm border border-gray-200/50">
-                                                <img [src]="teacher.avatar" alt="Avatar"
-                                                    class="w-full h-full object-cover">
+                                                class="w-11 h-11 rounded-full overflow-hidden bg-slate-100 shrink-0 shadow-sm border border-gray-200/50 flex items-center justify-center">
+                                                <img *ngIf="teacher.profileImage && getImageUrl(teacher.profileImage)" 
+                                                    [src]="getImageUrl(teacher.profileImage)"
+                                                    [alt]="getTeacherName(teacher)" 
+                                                    class="w-full h-full object-cover" />
+                                                <span *ngIf="!teacher.profileImage || !getImageUrl(teacher.profileImage)" 
+                                                    class="material-symbols-outlined text-[24px] text-slate-400">person</span>
                                             </div>
                                             <div>
                                                 <div class="text-[14px] font-extrabold text-slate-900 mb-0.5">{{
-                                                    teacher.name }}</div>
+                                                    getTeacherName(teacher) }}</div>
                                                 <div
                                                     class="text-[11px] font-bold text-slate-400/80 tracking-wide uppercase">
-                                                    ID: {{ teacher.id }}</div>
+                                                    ID: {{ getTeacherId(teacher) }}</div>
                                             </div>
                                         </div>
                                     </td>
                                     <td class="px-4 py-5">
                                         <div class="flex items-center gap-2">
-                                            <div class="w-2 h-2 rounded-full {{ teacher.dotColor }}"></div>
-                                            <span class="text-[13px] font-bold text-slate-800">{{ teacher.subject
-                                                }}</span>
+                                            <div class="w-2 h-2 rounded-full bg-blue-400"></div>
+                                            <span class="text-[13px] font-bold text-slate-800">{{ teacher.degree || 'N/A' }}</span>
                                         </div>
                                     </td>
                                     <td class="px-4 py-5">
-                                        <a href="mailto:{{teacher.email}}"
+                                        <a [href]="'mailto:' + teacher.email"
                                             class="text-[13px] font-medium text-[#4f46e5] hover:underline">{{
                                             teacher.email }}</a>
                                     </td>
                                     <td class="px-8 py-5 text-right relative">
                                         <div class="flex items-center justify-end gap-3 text-slate-400">
-                                            <button class="hover:text-[#1811c7] transition-colors" title="Edit Teacher">
-                                                <span class="material-symbols-outlined text-[18px]">edit</span>
-                                            </button>
-                                            <button class="hover:text-red-500 transition-colors" title="Delete Teacher">
+                                            <button (click)="deleteTeacher(teacher._id)" class="hover:text-red-500 transition-colors" title="Delete Teacher">
                                                 <span class="material-symbols-outlined text-[18px]">delete</span>
                                             </button>
                                         </div>
@@ -117,27 +135,28 @@
 
                     <!-- Pagination -->
                     <div class="px-8 py-6 border-t border-gray-100 flex items-center justify-between">
-                        <p class="text-[13px] font-bold text-[#5c68a4]">Showing 4 of 24 teachers</p>
+                        <p class="text-[13px] font-bold text-[#5c68a4]">
+                            <span *ngIf="teachers.length > 0">Showing {{ startIndex }} - {{ endIndex }} of {{ teachers.length }} teacher{{ teachers.length !== 1 ? 's' : '' }}</span>
+                            <span *ngIf="teachers.length === 0">No teachers to display</span>
+                        </p>
 
-                        <div class="flex items-center gap-2">
-                            <button
-                                class="w-9 h-9 rounded-full border border-gray-200 flex items-center justify-center text-slate-500 hover:bg-slate-50 transition-colors">
+                        <div class="flex items-center gap-2" *ngIf="teachers.length > 0">
+                            <button (click)="previousPage()" [disabled]="currentPage === 1"
+                                class="w-9 h-9 rounded-full border border-gray-200 flex items-center justify-center text-slate-500 hover:bg-slate-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
                                 <span class="material-symbols-outlined text-[18px]">chevron_left</span>
                             </button>
-                            <button
-                                class="w-9 h-9 rounded-full bg-[#1811c7] text-white text-[13px] font-bold flex items-center justify-center shadow-md shadow-blue-500/20">
-                                1
+                            
+                            <button *ngFor="let page of pageNumbers" (click)="goToPage(page)"
+                                [ngClass]="{
+                                    'bg-[#1811c7] text-white shadow-md shadow-blue-500/20': currentPage === page,
+                                    'text-slate-700': currentPage !== page
+                                }"
+                                class="w-9 h-9 rounded-full text-[13px] font-bold hover:bg-slate-50 transition-colors flex items-center justify-center">
+                                {{ page }}
                             </button>
-                            <button
-                                class="w-9 h-9 rounded-full text-slate-700 text-[13px] font-bold hover:bg-slate-50 transition-colors flex items-center justify-center">
-                                2
-                            </button>
-                            <button
-                                class="w-9 h-9 rounded-full text-slate-700 text-[13px] font-bold hover:bg-slate-50 transition-colors flex items-center justify-center">
-                                3
-                            </button>
-                            <button
-                                class="w-9 h-9 rounded-full border border-gray-200 flex items-center justify-center text-slate-500 hover:bg-slate-50 transition-colors">
+                            
+                            <button (click)="nextPage()" [disabled]="currentPage === totalPages"
+                                class="w-9 h-9 rounded-full border border-gray-200 flex items-center justify-center text-slate-500 hover:bg-slate-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
                                 <span class="material-symbols-outlined text-[18px]">chevron_right</span>
                             </button>
                         </div>

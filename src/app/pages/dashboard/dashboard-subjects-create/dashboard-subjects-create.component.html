@@ -1,0 +1,103 @@
+<div class="flex h-screen w-full bg-[#f8f9fc] font-inter text-slate-800 overflow-hidden">
+    <!-- Sidebar -->
+    <app-side-bar [activeRoute]="'subjects'"></app-side-bar>
+
+    <!-- Main Content -->
+    <main class="flex-1 flex flex-col overflow-hidden">
+        <!-- Navbar -->
+        <app-nav-bar></app-nav-bar>
+
+        <!-- Dashboard Content -->
+        <div class="flex-1 overflow-y-auto p-8">
+            <div class="max-w-[1200px] mx-auto flex flex-col gap-6">
+
+                <!-- Breadcrumb -->
+                <div class="flex items-center gap-2 text-[13px] font-semibold text-slate-500 mb-2 mt-4 ml-1">
+                    <a routerLink="/dashboard/subjects" class="hover:text-[#181140] transition-colors">Subjects</a>
+                    <span class="material-symbols-outlined text-[16px]">chevron_right</span>
+                    <span class="text-[#181140]">{{ isEditMode ? 'Edit Subject' : 'Create New Subject' }}</span>
+                </div>
+
+                <!-- Header -->
+                <div class="mb-4">
+                    <h1 class="text-[32px] font-black text-[#181140] tracking-tight">{{ isEditMode ? 'Edit Subject' :
+                        'Create New Subject' }}</h1>
+                    <p class="text-slate-500 mt-2 text-sm font-medium">Fill in the details below to {{ isEditMode ?
+                        'update the' : 'add a new' }} subject category to the eduLearn curriculum.</p>
+                </div>
+
+                <form [formGroup]="subjectForm" (ngSubmit)="onSubmit()" class="flex flex-col gap-6 max-w-5xl">
+
+                    <!-- Form Card -->
+                    <div class="bg-white rounded-[32px] shadow-sm border border-gray-100 p-10 relative">
+                        <!-- Error Message -->
+                        <div *ngIf="errorMessage" class="mb-6 p-4 bg-red-50 border border-red-200 rounded-xl">
+                            <div class="flex items-center gap-2 text-red-700">
+                                <span class="material-symbols-outlined text-[20px]">error</span>
+                                <span class="text-sm font-medium">{{ errorMessage }}</span>
+                            </div>
+                        </div>
+
+                        <!-- Subject Name -->
+                        <div class="mb-8 flex flex-col md:flex-row gap-6 md:gap-16">
+                            <div class="md:w-1/3">
+                                <label class="block text-sm font-bold text-slate-900 mb-1">
+                                    Subject Name
+                                </label>
+                                <p class="text-[13px] text-slate-500 leading-snug">The official title of the subject
+                                    area.</p>
+                            </div>
+                            <div class="md:w-2/3">
+                                <input type="text" formControlName="name"
+                                    class="w-full px-5 py-3.5 bg-white border border-[#e2e8f0] rounded-full text-sm font-medium text-slate-800 placeholder:text-slate-400 focus:ring-2 focus:ring-[#181140]/10 focus:border-[#181140] outline-none transition-all"
+                                    placeholder="e.g., Mathematics, Quantum Physics"
+                                    [class.border-red-500]="subjectForm.get('name')?.invalid && subjectForm.get('name')?.touched">
+                                <p *ngIf="getFieldError('name')" class="mt-2 text-sm text-red-600 font-medium">
+                                    {{ getFieldError('name') }}
+                                </p>
+                            </div>
+                        </div>
+
+                        <!-- Description -->
+                        <div class="mb-12 flex flex-col md:flex-row gap-6 md:gap-16">
+                            <div class="md:w-1/3">
+                                <label class="block text-sm font-bold text-slate-900 mb-1">
+                                    Description
+                                </label>
+                                <p class="text-[13px] text-slate-500 leading-snug">Provide a detailed overview of what
+                                    students will learn.</p>
+                            </div>
+                            <div class="md:w-2/3">
+                                <textarea formControlName="description" rows="5"
+                                    class="w-full px-5 py-4 bg-white border border-[#e2e8f0] rounded-3xl text-sm font-medium text-slate-800 placeholder:text-slate-400 focus:ring-2 focus:ring-[#181140]/10 focus:border-[#181140] outline-none transition-all resize-y min-h-[140px]"
+                                    placeholder="Enter subject overview and learning objectives..."
+                                    [class.border-red-500]="subjectForm.get('description')?.invalid && subjectForm.get('description')?.touched"></textarea>
+                                <p *ngIf="getFieldError('description')" class="mt-2 text-sm text-red-600 font-medium">
+                                    {{ getFieldError('description') }}
+                                </p>
+                            </div>
+                        </div>
+
+                        <!-- Action Buttons -->
+                        <div class="flex items-center justify-end gap-6 pt-2">
+                            <button type="button" (click)="onCancel()"
+                                class="px-2 py-3 text-slate-700 hover:text-slate-900 rounded-xl transition-colors font-bold text-[15px]">
+                                Cancel
+                            </button>
+                            <button type="submit" [disabled]="isSubmitting"
+                                class="flex items-center gap-2 px-8 py-3.5 bg-[#0f1025] hover:bg-[#1a1b3b] text-white rounded-full transition-colors font-bold text-[15px] shadow-md disabled:opacity-50 disabled:cursor-not-allowed">
+                                <span class="material-symbols-outlined text-[18px]"
+                                    *ngIf="!isSubmitting">check_circle</span>
+                                <span *ngIf="isSubmitting"
+                                    class="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></span>
+                                <span>{{ isSubmitting ? 'Saving...' : (isEditMode ? 'Update Subject' : 'Save Subject')
+                                    }}</span>
+                            </button>
+                        </div>
+                    </div>
+                </form>
+
+            </div>
+        </div>
+    </main>
+</div>

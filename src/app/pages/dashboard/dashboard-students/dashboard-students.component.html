@@ -21,8 +21,18 @@
                     class="bg-white p-2.5 rounded-2xl shadow-sm border border-gray-100 flex flex-wrap items-center gap-3">
                     <div class="flex-1 min-w-[300px] relative flex items-center">
                         <span class="material-symbols-outlined absolute left-4 text-slate-400 text-xl">search</span>
-                        <input type="text" placeholder="Search by name, email or ID..."
+                        <input type="text" [formControl]="searchControl" placeholder="Search by name, email or ID..."
                             class="w-full pl-11 pr-4 py-2.5 bg-[#f8f9fc] border-none rounded-xl text-sm outline-none focus:ring-2 focus:ring-blue-500/30" />
+                    </div>
+
+                    <!-- Status Filter -->
+                    <div class="relative z-50">
+                        <app-dropdown-menu 
+                            [options]="statusOptions" 
+                            [selectedValue]="statusControl.value"
+                            (selectionChange)="statusControl.setValue($event)"
+                            placeholder="Status: All">
+                        </app-dropdown-menu>
                     </div>
                 </div>
 
@@ -53,9 +63,11 @@
                                     <div class="flex items-center gap-4">
                                         <div
                                             class="h-10 w-10 rounded-full flex-shrink-0 bg-indigo-100 text-indigo-700 font-bold overflow-hidden flex items-center justify-center">
-                                            <img *ngIf="student.profileImage" [src]="student.profileImage"
-                                                [alt]="student.username" class="h-full w-full object-cover" />
-                                            <span *ngIf="!student.profileImage">{{
+                                            <img *ngIf="student.profileImage && getImageUrl(student.profileImage)" 
+                                                [src]="getImageUrl(student.profileImage)"
+                                                [alt]="student.username" 
+                                                class="h-full w-full object-cover" />
+                                            <span *ngIf="!student.profileImage || !getImageUrl(student.profileImage)">{{
                                                 student.username.charAt(0) | uppercase }}</span>
                                         </div>
                                         <span class="font-semibold text-slate-800 text-sm">{{ student.username }}</span>
@@ -114,26 +126,6 @@
                         <div>
                             <p class="text-sm font-medium text-slate-500 mb-0.5">Total Students</p>
                             <p class="text-[28px] font-black text-slate-900 leading-none">{{ totalStudents }}</p>
-                        </div>
-                    </div>
-
-                    <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 flex items-center gap-5">
-                        <div class="h-14 w-14 rounded-2xl bg-[#e0f5e9] text-[#168a4e] flex items-center justify-center">
-                            <span class="material-symbols-outlined text-[28px]">bolt</span>
-                        </div>
-                        <div>
-                            <p class="text-sm font-medium text-slate-500 mb-0.5">Active Now</p>
-                            <p class="text-[28px] font-black text-slate-900 leading-none">{{ activeNow }}</p>
-                        </div>
-                    </div>
-
-                    <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 flex items-center gap-5">
-                        <div class="h-14 w-14 rounded-2xl bg-[#e6efff] text-[#2563eb] flex items-center justify-center">
-                            <span class="material-symbols-outlined text-[28px]">trending_up</span>
-                        </div>
-                        <div>
-                            <p class="text-sm font-medium text-slate-500 mb-0.5">New Signups (24h)</p>
-                            <p class="text-[28px] font-black text-slate-900 leading-none">{{ newSignups }}</p>
                         </div>
                     </div>
 

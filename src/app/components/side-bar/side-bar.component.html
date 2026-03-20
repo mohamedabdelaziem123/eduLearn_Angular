@@ -37,11 +37,11 @@
                 <span class="text-sm"
                     [ngClass]="activeRoute === 'students' ? 'font-semibold' : 'font-medium'">Students</span>
             </a>
-            <a class="flex items-center gap-4 px-4 py-3 rounded-xl text-slate-300 hover:bg-[#2d2e4d] transition-colors cursor-pointer"
-                [class.bg-[#1d1ed9]]="activeRoute === 'subjects'" [class.text-white]="activeRoute === 'subjects'"
-                [class.shadow-md]="activeRoute === 'subjects'">
+            <a routerLink="/dashboard/subjects"
+                [class]="activeRoute === 'subjects' ? 'flex items-center gap-4 px-4 py-3 rounded-xl bg-[#1d1ed9] text-white shadow-md transition-colors cursor-pointer' : 'flex items-center gap-4 px-4 py-3 rounded-xl text-slate-300 hover:bg-[#2d2e4d] transition-colors cursor-pointer'">
                 <span class="material-symbols-outlined text-[22px]">book</span>
-                <span class="text-sm font-medium">Subjects</span>
+                <span class="text-sm"
+                    [ngClass]="activeRoute === 'subjects' ? 'font-semibold' : 'font-medium'">Subjects</span>
             </a>
         </nav>
     </div>

@@ -1,0 +1,194 @@
+<div class="bg-[#f8fafc] text-slate-900 min-h-screen font-inter antialiased flex flex-col">
+    <!-- Use standard App Nav Bar -->
+    <app-nav-bar [isTeacherNav]="true" activeRoute="quizzes"></app-nav-bar>
+    
+    <main *ngIf="isLoading" class="flex-1 flex items-center justify-center min-h-[500px]">
+        <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+    </main>
+
+    <main *ngIf="!isLoading && attempt" class="max-w-[1400px] w-full mx-auto px-4 sm:px-8 py-10 flex-1">
+        <!-- Breadcrumbs & Header -->
+        <div class="mb-8">
+            <nav aria-label="Breadcrumb" class="flex text-sm text-slate-500 mb-4">
+                <ol class="inline-flex items-center space-x-1 md:space-x-3">
+                    <li><a routerLink="/teacher-quizzes" class="hover:text-blue-600 cursor-pointer">Quizzes</a></li>
+                    <li><span class="mx-1 text-slate-300">/</span></li>
+                    <li><a class="hover:text-blue-600 cursor-pointer">{{ attempt.lessonTitle || attempt.quizTitle || 'Result' }}</a></li>
+                    <li><span class="mx-1 text-slate-300">/</span></li>
+                    <li class="text-slate-900 font-medium">Attempt Review</li>
+                </ol>
+            </nav>
+
+            <div class="flex flex-col md:flex-row md:items-end justify-between gap-6">
+                <div>
+                    <h1 class="text-4xl font-black text-slate-900 tracking-tight">{{ attempt.quizTitle }}</h1>
+                </div>
+                <!-- Action Footer -->
+                <div class="flex gap-3">
+                    <button routerLink="/teacher-quizzes" class="px-8 py-3 rounded-xl bg-blue-600 text-white font-bold text-sm hover:bg-blue-700 transition-all shadow-lg shadow-indigo-100">Back to Gradebook</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            
+            <!-- Left Column: Score & Analytics -->
+            <div class="lg:col-span-1 space-y-8">
+                
+                <!-- Your Score Card -->
+                <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-8">
+                    <h2 class="text-lg font-bold text-slate-900 mb-8">Generated Score</h2>
+                    
+                    <div class="relative w-52 h-52 mx-auto rounded-full flex items-center justify-center shadow-inner"
+                         [style.background]="'conic-gradient(#2563eb ' + attempt.percentage + '%, #e2e8f0 0)'">
+                        <div class="w-44 h-44 bg-white rounded-full flex flex-col items-center justify-center shadow-sm">
+                            <span class="text-5xl font-black text-slate-900 tracking-tight">{{ attempt.percentage | number:'1.0-0' }}%</span>
+                            <span class="text-sm text-slate-500 mt-2 font-semibold">{{ attempt.score }} / {{ attempt.totalQuestions }} pts</span>
+                        </div>
+                    </div>
+
+                    <div class="mt-10 flex border-t border-slate-100 pt-6">
+                        <div class="text-center w-full">
+                            <p class="text-[10px] text-slate-400 uppercase tracking-widest font-bold mb-1">Status</p>
+                            <p *ngIf="attempt.isPassed" class="font-bold text-blue-600 flex items-center justify-center text-lg">
+                                <span class="material-symbols-outlined text-[20px] mr-1">check_circle</span> Passed
+                            </p>
+                            <p *ngIf="!attempt.isPassed" class="font-bold text-orange-500 flex items-center justify-center text-lg">
+                                <span class="material-symbols-outlined text-[20px] mr-1">cancel</span> Failed
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Class Performance Card (Student Profile) -->
+                <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-8">
+                    <div class="flex flex-col items-center">
+                        <div class="relative mb-6">
+                            <div class="w-24 h-24 rounded-full overflow-hidden border-4 border-blue-50 bg-orange-200 flex items-center justify-center text-orange-700 text-3xl font-black">
+                                <img *ngIf="getStudent()?.profileImage && getImageUrl(getStudent()?.profileImage)" [src]="getImageUrl(getStudent()?.profileImage)" alt="Student Profile" class="w-full h-full object-cover">
+                                <span *ngIf="!getStudent()?.profileImage || !getImageUrl(getStudent()?.profileImage)">{{ getStudentInitial() }}</span>
+                            </div>
+                            <div class="absolute bottom-0 right-0 w-6 h-6 bg-green-500 border-2 border-white rounded-full"></div>
+                        </div>
+                        <h2 class="text-xl font-bold text-slate-900 mb-1">{{ getStudent()?.firstName }} {{ getStudent()?.lastName }}</h2>
+                    </div>
+
+                    <div class="space-y-4 pt-6 border-t border-slate-100">
+                        <div class="flex items-center gap-3">
+                            <span class="material-symbols-outlined text-slate-400 text-xl">mail</span>
+                            <div class="overflow-hidden">
+                                <p class="text-[10px] text-slate-400 uppercase tracking-widest font-bold">Email</p>
+                                <p class="text-sm text-slate-700 font-medium truncate">{{ getStudent()?.email || 'N/A' }}</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-3">
+                            <span class="material-symbols-outlined text-slate-400 text-xl">call</span>
+                            <div>
+                                <p class="text-[10px] text-slate-400 uppercase tracking-widest font-bold">Phone</p>
+                                <p class="text-sm text-slate-700 font-medium">{{ getStudent()?.phone || 'N/A' }}</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-3">
+                            <span class="material-symbols-outlined text-slate-400 text-xl">location_on</span>
+                            <div>
+                                <p class="text-[10px] text-slate-400 uppercase tracking-widest font-bold">Location</p>
+                                <p class="text-sm text-slate-700 font-medium">{{ getStudent()?.address || 'N/A' }}</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Column: Question Breakdown -->
+            <div class="lg:col-span-2 space-y-6">
+                <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+                    
+                    <div class="p-6 border-b border-slate-100 flex items-center justify-between">
+                        <h2 class="text-xl font-bold text-slate-900 tracking-tight">Question Breakdown</h2>
+                        <div class="flex items-center space-x-6 text-sm">
+                            <span class="flex items-center text-blue-600 font-bold">
+                                <span class="material-symbols-outlined text-base mr-1.5">check_circle</span> 
+                                {{ attempt.score }} Correct
+                            </span>
+                            <span class="flex items-center text-red-500 font-bold">
+                                <span class="material-symbols-outlined text-base mr-1.5">cancel</span> 
+                                {{ attempt.totalQuestions - attempt.score }} Incorrect
+                            </span>
+                        </div>
+                    </div>
+
+                    <div class="divide-y divide-slate-100">
+                        
+                        <!-- Review Items Iterable -->
+                        <div *ngFor="let review of attempt.review; let i = index" 
+                             [class]="review.isCorrect 
+                                ? 'p-8 hover:bg-slate-50/50 transition-colors' 
+                                : 'p-8 bg-red-50/20 hover:bg-red-50/40 transition-colors'">
+                            
+                            <div class="flex items-start gap-5">
+                                <span *ngIf="review.isCorrect" class="material-symbols-outlined text-blue-600 text-2xl shrink-0">check_circle</span>
+                                <span *ngIf="!review.isCorrect" class="material-symbols-outlined text-red-500 text-2xl shrink-0">cancel</span>
+                                
+                                <div class="flex-grow">
+                                    <div class="flex justify-between items-start mb-3">
+                                        <h3 class="font-bold text-slate-800 text-base leading-snug">{{ i + 1 }}. {{ review.questionTitle }}</h3>
+                                        
+                                        <!-- Score Pill -->
+                                        <span *ngIf="review.isCorrect" class="text-xs font-bold px-2.5 py-1 bg-blue-50 text-blue-700 border border-blue-100 rounded-full ml-4 shrink-0">
+                                            1 / 1 pt
+                                        </span>
+                                        <span *ngIf="!review.isCorrect" class="text-xs font-bold px-2.5 py-1 bg-red-50 text-red-700 border border-red-100 rounded-full ml-4 shrink-0">
+                                            0 / 1 pt
+                                        </span>
+                                    </div>
+
+                                    <!-- If Correct, just show the selected answer cleanly -->
+                                    <div *ngIf="review.isCorrect">
+                                        <p class="text-[10px] text-slate-400 uppercase tracking-widest font-bold mb-2">Student Answer</p>
+                                        <div class="bg-blue-50 border border-blue-100 rounded-lg p-4">
+                                            <!-- Find the selected option's text -->
+                                            <ng-container *ngFor="let opt of review.options">
+                                                <p *ngIf="hasStudentSelected(opt, review.studentAnswer)" class="text-sm text-blue-800 font-medium">
+                                                    {{ opt.text }}
+                                                </p>
+                                            </ng-container>
+                                        </div>
+                                    </div>
+
+                                    <!-- If Incorrect, show User Answer vs Correct Answer -->
+                                    <div *ngIf="!review.isCorrect">
+                                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-4">
+                                            <div>
+                                                <p class="text-[10px] text-slate-400 font-bold mb-2 uppercase tracking-widest">Student Answer</p>
+                                                <div class="bg-red-50/50 border border-red-100 rounded-lg p-4 h-full">
+                                                    <ng-container *ngFor="let opt of review.options">
+                                                        <p *ngIf="hasStudentSelected(opt, review.studentAnswer)" class="text-sm text-red-800 font-medium">
+                                                            {{ opt.text }}
+                                                        </p>
+                                                    </ng-container>
+                                                    <p *ngIf="!review.studentAnswer" class="text-sm text-red-800 font-medium italic">Skipped / No Answer</p>
+                                                </div>
+                                            </div>
+                                            <div>
+                                                <p class="text-[10px] text-slate-400 font-bold mb-2 uppercase tracking-widest">Correct Answer</p>
+                                                <div class="bg-blue-50 border border-blue-100 rounded-lg p-4 h-full">
+                                                    <ng-container *ngFor="let opt of review.options">
+                                                        <p *ngIf="isOptionCorrect(opt)" class="text-sm text-blue-800 font-medium">
+                                                            {{ opt.text }}
+                                                        </p>
+                                                    </ng-container>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div> <!-- End of incorrect block -->
+
+                                </div>
+                            </div>
+                        </div> <!-- End loop -->
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+</div>

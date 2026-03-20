@@ -10,7 +10,8 @@ import {
 } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { CommonModule } from '@angular/common';
-import { AuthService, SignupPayload } from '../../services/auth.service';
+import { AuthService } from '../../services/auth.service';
+import { SignupBodyDto } from '../../responses/auth/dto/auth.dto';
 
 /** Custom validator: at least 8 chars, one uppercase, one digit, one special char */
 function strongPasswordValidator(control: AbstractControl): ValidationErrors | null {
@@ -76,7 +77,7 @@ export class SignupComponent implements AfterViewInit {
     this.successMessage = '';
 
     const val = this.form.value;
-    const payload: SignupPayload = {
+    const payload: SignupBodyDto = {
       username: val.username,
       email: val.email,
       password: val.password,

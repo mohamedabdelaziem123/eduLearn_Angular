@@ -1,0 +1,216 @@
+<div class="flex flex-col min-h-screen w-full bg-[#f8f9fc] font-inter text-slate-800">
+    <app-nav-bar [isTeacherNav]="true" activeRoute="quizzes"></app-nav-bar>
+
+    <main class="flex-1 overflow-y-auto px-8 py-10">
+        <div class="max-w-[1400px] mx-auto flex flex-col gap-8">
+            
+            <!-- HEADER -->
+            <div class="flex flex-col">
+                <h2 class="text-[36px] font-extrabold text-[#111827] tracking-tight">Instructor Workspace</h2>
+                <p class="text-slate-500 mt-2 text-[16px] font-medium max-w-xl">
+                    Manage your course curriculum and monitor real-time student performance.
+                </p>
+            </div>
+
+            <!-- Dashboard Layout (Grid) -->
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+                
+                <!-- LEFT COLUMN: Courses (3 cols) -->
+                <div class="col-span-1 lg:col-span-3 flex flex-col gap-4">
+                    <div class="flex items-center justify-between mb-2">
+                        <h3 class="text-[18px] font-bold text-slate-900">Your Courses</h3>
+                        <span class="px-2.5 py-1 bg-blue-100 text-blue-700 text-[12px] font-bold rounded-md">
+                            {{ courses.length }} ACTIVE
+                        </span>
+                    </div>
+
+                    <div *ngIf="isLoadingCourses" class="flex justify-center p-8">
+                        <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+                    </div>
+
+                    <div *ngIf="!isLoadingCourses" class="flex flex-col gap-4">
+                        <div *ngFor="let course of courses" 
+                             (click)="selectCourse(course)"
+                             [class]="course._id === selectedCourse?._id 
+                                ? 'bg-white rounded-xl shadow-sm border-2 border-blue-600 overflow-hidden cursor-pointer transition-all' 
+                                : 'bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden cursor-pointer hover:border-blue-300 transition-all opacity-80 hover:opacity-100'">
+                            
+                            <!-- Course Thumbnail Placeholder or Image -->
+                            <div class="h-[120px] w-full bg-indigo-50 flex items-center justify-center p-2">
+                                <img *ngIf="course.image" [src]="getImageUrl(course.image)" class="w-full h-full object-cover rounded-md">
+                                <span *ngIf="!course.image" class="material-symbols-outlined text-[48px] text-indigo-200">science</span>
+                            </div>
+                            
+                            <!-- Course Info -->
+                            <div class="p-4">
+                                <h4 class="font-bold text-slate-900 leading-tight mb-2">{{ course.title }}</h4>
+                                <div class="flex items-center gap-4 text-[12px] text-slate-500 font-medium">
+                                    <div class="flex items-center gap-1">
+                                        <span class="material-symbols-outlined text-[14px]">help</span>
+                                        <span>{{ course.lessons?.length || 0 }} Lessons</span>
+                                    </div>
+                                    <!-- Using placeholder for Average Score logic, backend doesn't aggregate course quizzes broadly yet -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- RIGHT COLUMN: Curriculum & Results (9 cols) -->
+                <div class="col-span-1 lg:col-span-9 flex flex-col gap-8">
+                    
+                    <!-- TOP SECTION: Selected Course Lessons -->
+                    <div class="bg-white rounded-3xl border border-gray-200 shadow-sm overflow-hidden flex flex-col">
+                        <div class="p-6 border-b border-gray-100 flex items-center justify-between">
+                            <div class="flex items-center gap-3">
+                                <span class="material-symbols-outlined text-blue-600">account_tree</span>
+                                <h3 class="text-[18px] font-bold text-slate-900">
+                                    {{ selectedCourse?.title || 'Course' }}: Curriculum
+                                </h3>
+                            </div>
+                            <button class="text-blue-600 text-sm font-bold flex items-center gap-1 hover:text-blue-700">
+                                Edit Course <span class="material-symbols-outlined text-[16px]">edit</span>
+                            </button>
+                        </div>
+                        
+                        <div class="flex flex-col">
+                            <div *ngIf="isLoadingLessons" class="flex justify-center p-10">
+                                <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+                            </div>
+
+                            <div *ngIf="!isLoadingLessons && lessons.length === 0" class="p-8 text-center text-slate-500">
+                                No lessons created for this course yet.
+                            </div>
+                            
+                            <div *ngFor="let lesson of lessons; let i = index" 
+                                 (click)="selectLesson(lesson)"
+                                 class="flex items-center justify-between p-6 cursor-pointer border-b border-gray-50 last:border-0 hover:bg-slate-50 transition-colors">
+                                
+                                <div class="flex items-center gap-6">
+                                    <!-- Index Badge -->
+                                    <div [class]="lesson._id === selectedLesson?._id 
+                                        ? 'h-12 w-12 rounded-xl bg-blue-100 text-blue-700 flex items-center justify-center font-bold text-lg'
+                                        : 'h-12 w-12 rounded-xl bg-slate-100 text-slate-500 flex items-center justify-center font-bold text-lg'">
+                                        {{ i + 1 < 10 ? '0' + (i + 1) : (i + 1) }}
+                                    </div>
+                                    
+                                    <!-- Lesson Metadata -->
+                                    <div class="flex flex-col">
+                                        <h4 class="text-base font-bold text-slate-900">Lesson {{ i + 1 }}: {{ lesson.title }}</h4>
+                                        <p class="text-[13px] text-slate-500 font-medium">
+                                            Description: {{ lesson.description || 'No description provided' }}
+                                        </p>
+                                    </div>
+                                </div>
+                                
+                                <!-- State Button -->
+                                <button *ngIf="lesson._id !== selectedLesson?._id" class="px-5 py-2.5 rounded-xl bg-slate-100 text-slate-700 font-bold text-sm flex items-center gap-2 hover:bg-slate-200 transition-colors">
+                                    <span class="material-symbols-outlined text-[18px]">bar_chart</span> View Results
+                                </button>
+                                <button *ngIf="lesson._id === selectedLesson?._id" class="px-5 py-2.5 rounded-xl bg-blue-600 text-white font-bold text-sm flex items-center gap-2 shadow-sm">
+                                    <span class="material-symbols-outlined text-[18px]">visibility</span> Currently Viewing
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- BOTTOM SECTION: Detailed Student Results -->
+                    <div class="flex items-center justify-between mt-4 mb-2">
+                        <h3 class="text-[20px] font-bold text-slate-900">Detailed Student Results</h3>
+                        
+                        <!-- Search & Filters -->
+                        <div class="flex items-center gap-3">
+                            <div class="relative w-[300px]">
+                                <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-[20px]">search</span>
+                                <input [formControl]="searchControl" type="text" placeholder="Search student..." 
+                                       class="w-full pl-10 pr-4 py-2.5 rounded-xl border border-gray-200 bg-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div *ngIf="isLoadingResults" class="flex justify-center p-10 bg-white rounded-3xl border border-gray-200">
+                        <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+                    </div>
+
+                    <div *ngIf="!isLoadingResults && studentResults.length === 0" class="flex flex-col items-center justify-center p-16 bg-white rounded-3xl border border-gray-200 text-slate-500">
+                        <span class="material-symbols-outlined text-[48px] text-slate-300 mb-4">search_off</span>
+                        <p class="font-semibold text-slate-700">No student results found</p>
+                        <p class="text-sm">Try adjusting your search query.</p>
+                    </div>
+
+                    <div *ngIf="!isLoadingResults && studentResults.length > 0" class="flex flex-col gap-4">
+                        <div *ngFor="let result of studentResults" 
+                             [routerLink]="['/teacher-result', result._id || result.id || result.attemptId]"
+                             [state]="{ student: result.student, score: result.score, percentage: result.percentage }"
+                             class="relative group flex items-center bg-white rounded-2xl border border-gray-200 p-5 shadow-sm overflow-hidden cursor-pointer transition-all hover:border-blue-300">
+                            
+                            <!-- Hover Overlay: Blue Opacity 0.5 -->
+                            <div class="absolute inset-0 bg-blue-600/50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-10">
+                                <span class="text-white font-bold flex items-center gap-2 transform translate-y-2 group-hover:translate-y-0 transition-all duration-300">
+                                    <span class="material-symbols-outlined text-[20px]">visibility</span> View Result
+                                </span>
+                            </div>
+
+                            <!-- Student Profile -->
+                            <div class="flex flex-col gap-2 w-[300px]">
+                                <div class="flex items-center gap-4">
+                                    <div class="h-12 w-12 rounded-full overflow-hidden bg-orange-200 text-orange-700 flex items-center justify-center font-bold text-lg flex-shrink-0 border border-gray-100 shadow-sm relative z-0">
+                                        <img *ngIf="studentProfiles[result.student?._id || result.studentId]?.profileImage && getImageUrl(studentProfiles[result.student?._id || result.studentId]?.profileImage)" [src]="getImageUrl(studentProfiles[result.student?._id || result.studentId]?.profileImage)" alt="Profile" class="h-full w-full object-cover">
+                                        <span *ngIf="!studentProfiles[result.student?._id || result.studentId]?.profileImage || !getImageUrl(studentProfiles[result.student?._id || result.studentId]?.profileImage)">{{ result.student?.firstName?.[0] || '?' }}{{ result.student?.lastName?.[0] || '' }}</span>
+                                    </div>
+                                    <div class="flex flex-col overflow-hidden">
+                                        <h4 class="font-bold text-slate-900 truncate">{{ result.student?.firstName }} {{ result.student?.lastName }}</h4>
+                                        <p class="text-[13px] text-slate-500 truncate">{{ result.student?.email }}</p>
+                                    </div>
+                                </div>
+                                
+                             
+                            </div>
+                            
+                            <!-- Score Tracker -->
+                            <div class="flex-1 flex flex-col justify-center items-center">
+                                <div class="flex items-center gap-2 mb-2 w-full max-w-[200px] justify-center">
+                                    <span class="font-bold text-slate-900">{{ result.score }}/{{ result.totalQuestions }}</span>
+                                    <span class="text-slate-400 font-medium text-sm">({{ result.percentage | number:'1.0-0' }}%)</span>
+                                </div>
+                                <!-- Progress Bar -->
+                                <div class="w-full max-w-[200px] h-2 bg-slate-100 rounded-full overflow-hidden">
+                                    <!-- Dynamic coloring based on pass/fail -->
+                                    <div [class]="result.isPassed ? 'h-full bg-blue-600 rounded-full' : 'h-full bg-orange-500 rounded-full'" 
+                                         [style.width]="result.percentage + '%'">
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Status & Timing -->
+                            <div class="flex flex-col items-end w-[150px] gap-1">
+                                <span *ngIf="result.isPassed" class="px-3 py-1 bg-green-100 text-green-700 rounded-lg text-[10px] font-bold tracking-widest uppercase">
+                                    Pass
+                                </span>
+                                <span *ngIf="!result.isPassed" class="px-3 py-1 bg-red-100 text-red-700 rounded-lg text-[10px] font-bold tracking-widest uppercase">
+                                    Fail
+                                </span>
+                                <span class="text-[11px] font-medium text-slate-400 mt-1 uppercase">
+                                    {{ getTimeAgo(result.createdAt) }}
+                                </span>
+                            </div>
+                        </div>
+
+                        <!-- Load More -->
+                        <button *ngIf="hasMoreResults" 
+                                (click)="loadMoreResults()"
+                                [disabled]="isLoadingResults"
+                                class="mx-auto mt-4 px-6 py-3 border border-blue-200 text-blue-600 font-bold rounded-xl text-sm hover:bg-blue-50 transition-colors disabled:opacity-50">
+                            <span *ngIf="!isLoadingResults">Load More Results</span>
+                            <span *ngIf="isLoadingResults" class="flex items-center gap-2">
+                                <div class="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600"></div> Loading...
+                            </span>
+                        </button>
+                    </div>
+
+                </div>
+            </div>
+
+        </div>
+    </main>
+</div>

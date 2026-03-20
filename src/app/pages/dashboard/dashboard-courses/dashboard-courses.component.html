@@ -22,16 +22,14 @@
                     </button>
                 </div>
 
-                <div class="flex items-center gap-3 mb-4 mt-2">
-                    <div class="relative">
-                        <select [value]="selectedSubjectId" (change)="onSubjectChange($event)"
-                            class="appearance-none bg-white pr-10 pl-5 py-2.5 border border-gray-200 rounded-full text-[13px] text-slate-700 cursor-pointer shadow-sm font-semibold outline-none focus:ring-2 focus:ring-[#1811c7]/20 transition-all min-w-[180px]">
-                            <option value="">All Subjects</option>
-                            <option *ngFor="let subject of subjects" [value]="subject._id">{{ subject.name | titlecase
-                                }}</option>
-                        </select>
-                        <span
-                            class="material-symbols-outlined text-[18px] text-slate-400 absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none">expand_more</span>
+                <div class="flex items-center gap-3 mb-4 mt-2 bg-white p-2.5 rounded-2xl shadow-sm border border-gray-100">
+                    <div class="relative z-50">
+                        <app-dropdown-menu 
+                            [options]="subjectOptions"
+                            [selectedValue]="selectedSubjectId"
+                            (selectionChange)="onSubjectChange($event)"
+                            placeholder="All Subjects">
+                        </app-dropdown-menu>
                     </div>
 
 
@@ -71,9 +69,15 @@
                             <tr class="hover:bg-slate-50/50 transition-colors group">
                                 <td class="px-7 py-5">
                                     <div class="flex items-center gap-4">
-                                        <div
-                                            [class]="'h-11 w-11 rounded-full flex-shrink-0 font-bold flex items-center justify-center ' + course.iconBg + ' ' + course.iconColor">
-                                            <span class="material-symbols-outlined">{{ course.icon }}</span>
+                                        <div class="h-11 w-11 rounded-lg flex-shrink-0 overflow-hidden bg-slate-100">
+                                            <img *ngIf="course.courseImage && getImageUrl(course.courseImage)" 
+                                                [src]="getImageUrl(course.courseImage)"
+                                                [alt]="course.title"
+                                                class="w-full h-full object-cover" />
+                                            <div *ngIf="!course.courseImage || !getImageUrl(course.courseImage)"
+                                                [class]="'w-full h-full flex items-center justify-center ' + course.iconBg + ' ' + course.iconColor">
+                                                <span class="material-symbols-outlined">{{ course.icon }}</span>
+                                            </div>
                                         </div>
                                         <div>
                                             <p class="font-bold text-slate-900 text-[15px] leading-tight">{{
@@ -84,8 +88,14 @@
                                 <td class="px-6 py-5 text-[14px] font-medium text-slate-500">{{ course.subject }}</td>
                                 <td class="px-6 py-5">
                                     <div class="flex items-center gap-3">
-                                        <img *ngIf="course.teacherImage" [src]="course.teacherImage"
-                                            class="h-8 w-8 rounded-full object-cover shadow-sm bg-slate-200" />
+                                        <div class="h-8 w-8 rounded-full overflow-hidden bg-slate-200 flex items-center justify-center">
+                                            <img *ngIf="course.teacherImage && getImageUrl(course.teacherImage)" 
+                                                [src]="getImageUrl(course.teacherImage)"
+                                                [alt]="course.teacherName"
+                                                class="h-full w-full object-cover shadow-sm" />
+                                            <span *ngIf="!course.teacherImage || !getImageUrl(course.teacherImage)"
+                                                class="material-symbols-outlined text-[18px] text-slate-400">person</span>
+                                        </div>
                                         <span class="font-medium text-slate-700 text-[14px]">{{ course.teacherName
                                             }}</span>
                                     </div>

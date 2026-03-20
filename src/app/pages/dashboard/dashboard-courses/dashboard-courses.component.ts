@@ -1,10 +1,12 @@
 import { Component, OnInit, Inject, PLATFORM_ID } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { RouterModule } from '@angular/router';
+import { environment } from '../../../enviroment/enviroment';
 import { NavBarComponent } from '../../../components/nav-bar/nav-bar.component';
 import { SideBarComponent } from '../../../components/side-bar/side-bar.component';
 import { CourseService } from '../../../services/course.service';
 import { ClickOutsideDirective } from '../../../directives/click-outside.directive';
+import { DropdownMenuComponent } from '../../../components/ui/dropdown-menu/dropdown-menu.component';
 
 export interface Course {
   id: string;
@@ -12,6 +14,7 @@ export interface Course {
   subject: string;
   teacherName: string;
   teacherImage?: string;
+  courseImage?: string;
   status: 'Published' | 'In Progress' | 'Draft' | 'Archived';
   dateCreated: string;
   iconBg: string;
@@ -23,13 +26,14 @@ export interface Course {
 @Component({
   selector: 'app-dashboard-courses',
   standalone: true,
-  imports: [CommonModule, RouterModule, NavBarComponent, SideBarComponent, ClickOutsideDirective],
+  imports: [CommonModule, RouterModule, NavBarComponent, SideBarComponent, ClickOutsideDirective, DropdownMenuComponent],
   templateUrl: './dashboard-courses.component.html',
   styleUrl: './dashboard-courses.component.css'
 })
 export class DashboardCoursesComponent implements OnInit {
   courses: Course[] = [];
   subjects: any[] = [];
+  subjectOptions: { value: string, label: string }[] = [{ value: '', label: 'All Subjects' }];
   selectedSubjectId: string = '';
   activeDropdownId: string | null = null;
 
@@ -58,17 +62,27 @@ export class DashboardCoursesComponent implements OnInit {
 
   fetchSubjects() {
     this.courseService.getSubjects().subscribe({
-      next: (res) => {
-        if (res.data && res.data.subjects) {
-          this.subjects = res.data.subjects;
+      next: (res: any) => {
+        const subjectsArray = Array.isArray(res.data) ? res.data : (res.data?.subjects || []);
+        if (subjectsArray.length >= 0) {
+          this.subjects = subjectsArray;
+          this.subjectOptions = [
+            { value: '', label: 'All Subjects' },
+            ...this.subjects.map(s => ({ 
+              value: s._id, 
+              label: s.name.charAt(0).toUpperCase() + s.name.slice(1) 
+            }))
+          ];
         }
       },
-      error: (err) => console.error('Error fetching subjects', err)
+
+      error: (err: any) => console.error('Error fetching subjects', err)
     });
   }
 
-  onSubjectChange(event: any) {
-    this.selectedSubjectId = event.target.value;
+
+  onSubjectChange(val: string) {
+    this.selectedSubjectId = val;
     this.currentPage = 1;
     if (!this.selectedSubjectId) {
       this.fetchCourses();
@@ -76,22 +90,27 @@ export class DashboardCoursesComponent implements OnInit {
     }
 
     this.courseService.getCoursesBySubject(this.selectedSubjectId, this.currentPage).subscribe({
-      next: (res) => {
-        if (res.data && res.data.courses) {
-          this.courses = res.data.courses.map((c: any) => this.mapCourse(c));
+      next: (res: any) => {
+        const data = res.data || {};
+        const courseList = Array.isArray(data) ? data : (data.courses || data.Result || data.data || []);
+        if (data) {
+          this.courses = courseList.map((c: any) => this.mapCourse(c));
 
           // Fallback if backend doesn't send proper pagination for subject filter yet
-          this.docCount = res.data.DocCount || this.courses.length;
-          this.totalPages = res.data.pages || 1;
-          this.currentPage = res.data.currentPage || this.currentPage;
+          this.docCount = data.DocCount || this.courses.length;
+          this.totalPages = data.pages || 1;
+          this.currentPage = data.currentPage || this.currentPage;
           this.pagesArray = Array.from({ length: this.totalPages }, (_, i) => i + 1);
 
           this.calculateStats();
         }
       },
-      error: (err) => console.error('Error fetching courses by subject', err)
+
+      error: (err: any) => console.error('Error fetching courses by subject', err)
     });
+
   }
+
 
   resetFilters() {
     this.selectedSubjectId = '';
@@ -101,7 +120,7 @@ export class DashboardCoursesComponent implements OnInit {
 
   fetchCourses() {
     this.courseService.getCourses(this.currentPage).subscribe({
-      next: (res) => {
+      next: (res: any) => {
         if (res.data && res.data.Result) {
           this.courses = res.data.Result.map((c: any) => this.mapCourse(c));
 
@@ -113,15 +132,16 @@ export class DashboardCoursesComponent implements OnInit {
           this.calculateStats();
         }
       },
-      error: (err) => console.error('Error fetching courses', err)
+      error: (err: any) => console.error('Error fetching courses', err)
     });
   }
+
 
   goToPage(page: number) {
     if (page >= 1 && page <= this.totalPages && page !== this.currentPage) {
       this.currentPage = page;
       if (this.selectedSubjectId) {
-        this.onSubjectChange({ target: { value: this.selectedSubjectId } });
+        this.onSubjectChange(this.selectedSubjectId);
       } else {
         this.fetchCourses();
       }
@@ -144,7 +164,8 @@ export class DashboardCoursesComponent implements OnInit {
       title: c.title,
       subject: c.subjectId?.name || 'General',
       teacherName: (c.teacherId?.firstName || '') + ' ' + (c.teacherId?.lastName || 'Unknown'),
-      teacherImage: c.teacherId?.image || null,
+      teacherImage: c.teacherId?.profileImage || null,
+      courseImage: c.image || null,
       status: displayStatus,
       rawStatus: c.status,
       dateCreated: new Date(c.createdAt).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: '2-digit' }),
@@ -181,9 +202,10 @@ export class DashboardCoursesComponent implements OnInit {
         next: () => {
           this.fetchCourses();
         },
-        error: (err) => console.error(`Error updating status to ${action}`, err)
+        error: (err: any) => console.error(`Error updating status to ${action}`, err)
       });
     }
+
   }
 
   deleteCourse(courseId: string) {
@@ -192,8 +214,20 @@ export class DashboardCoursesComponent implements OnInit {
         next: () => {
           this.fetchCourses();
         },
-        error: (err) => console.error('Error deleting course', err)
+        error: (err: any) => console.error('Error deleting course', err)
       });
+
     }
+  }
+
+  getImageUrl(image: string | undefined | null): string | null {
+    if (!image) return null;
+    
+    // If it's already a full URL, return as is
+    if (image.startsWith('http://') || image.startsWith('https://')) {
+      return image;
+    }
+    
+    return `${environment.cdnUrl}/${image}`;
   }
 }

@@ -1,6 +1,9 @@
 import { Injectable, PLATFORM_ID, inject, NgZone } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { RefreshTokenDto, logoutDto, signupWithGmailDto, ConfirmEmailOtpBodyDto, SignupBodyDto, LoginBodyDto, SendforgotpasswordDto, VerfiyforgotpasswordDto, resetforgotpasswordDto, sendConfirmEmailOtpBodyDto } from '../responses/auth/dto/auth.dto';
+import { environment } from '../enviroment/enviroment';
+
 import { Router } from '@angular/router';
 import { Observable, tap } from 'rxjs';
 
@@ -9,51 +12,12 @@ import { Observable, tap } from 'rxjs';
 // ─────────────────────────────────────────────────────────────
 export const GOOGLE_CLIENT_ID = "24393066473-sg8cp522253nut54l1odoq8ir5h6af86.apps.googleusercontent.com";
 
-// ─────────────────────────────────────────────────────────────
-// ✏️ Base URL — change to your production URL when deploying
-// ─────────────────────────────────────────────────────────────
-const BASE_URL = 'http://localhost:3000';
-
 // ── localStorage keys ─────────────────────────────────────────
-const KEY_ACCESS = 'access_token';
-const KEY_REFRESH = 'refresh_token';
-const KEY_ROLE = 'user_role';
+const KEY_ACCESS = environment.tokenKey;
+const KEY_REFRESH = environment.refreshTokenKey;
+const KEY_ROLE = environment.roleKey;
 
 // ── Request / Response shapes ─────────────────────────────────
-
-export interface SignupPayload {
-  username: string;
-  email: string;
-  password: string;
-  confirmpassword: string;
-  address: string;
-  gender: string;
-  phone: string;
-}
-
-export interface LoginPayload {
-  email: string;
-  password: string;
-}
-
-export interface ForgotPasswordPayload {
-  email: string;
-}
-
-export interface VerifyForgotPayload {
-  email: string;
-  otp: string;
-}
-
-export interface ResetForgotPayload {
-  email: string;
-  password: string;
-  confirmpassword: string;
-}
-
-export interface ResendConfirmPayload {
-  email: string;
-}
 
 export interface LoginResponse {
   message: string;
@@ -73,6 +37,8 @@ export interface JwtPayload {
   iat: number;
   exp: number;
 }
+
+//okay now i added a responses folder having interfaces , enums and the dtos and entites for my nest project for you to explore it i will send you the controller for each module to create an angular service to fetch these apis do not remove any api from the existing service if it does not exist in the controller iam sending okay 
 
 // Extend Window so TypeScript knows about the GIS global
 declare global {
@@ -140,15 +106,15 @@ export class AuthService {
   // ──────────────────────────────────────────────
   // SIGN UP  →  POST /auth/signup
   // ──────────────────────────────────────────────
-  signup(payload: SignupPayload): Observable<any> {
-    return this.http.post(`${BASE_URL}/auth/signup`, payload);
+  signup(payload: SignupBodyDto): Observable<any> {
+    return this.http.post(`${environment.apiUrl}/auth/signup`, payload);
   }
 
   // ──────────────────────────────────────────────
   // LOGIN  →  POST /auth/login
   // ──────────────────────────────────────────────
-  login(payload: LoginPayload): Observable<LoginResponse> {
-    return this.http.post<LoginResponse>(`${BASE_URL}/auth/login`, payload).pipe(
+  login(payload: LoginBodyDto): Observable<LoginResponse> {
+    return this.http.post<LoginResponse>(`${environment.apiUrl}/auth/login`, payload).pipe(
       tap((res) => {
         const { access_token, refresh_token } = res.data.credentials;
         this.storeTokens(access_token, refresh_token);
@@ -160,29 +126,29 @@ export class AuthService {
   // GOOGLE SIGN-IN/UP  →  POST /auth/signupWithGmail
   // ──────────────────────────────────────────────
   signupWithGoogle(idToken: string): Observable<any> {
-    return this.http.post(`${BASE_URL}/auth/signupWithGmail`, { idToken });
+    return this.http.post(`${environment.apiUrl}/auth/signupWithGmail`, { idToken });
   }
 
   // ──────────────────────────────────────────────
   // PASSWORD RESET FLOW
   // ──────────────────────────────────────────────
-  sendForgotPassword(payload: ForgotPasswordPayload): Observable<any> {
-    return this.http.post(`${BASE_URL}/auth/send-forgot-password`, payload);
+  sendForgotPassword(payload: SendforgotpasswordDto): Observable<any> {
+    return this.http.post(`${environment.apiUrl}/auth/send-forgot-password`, payload);
   }
 
-  verifyForgotPassword(payload: VerifyForgotPayload): Observable<any> {
-    return this.http.post(`${BASE_URL}/auth/verfiy-forgot-password`, payload);
+  verifyForgotPassword(payload: VerfiyforgotpasswordDto): Observable<any> {
+    return this.http.post(`${environment.apiUrl}/auth/verfiy-forgot-password`, payload);
   }
 
-  resetForgotPassword(payload: ResetForgotPayload): Observable<any> {
-    return this.http.post(`${BASE_URL}/auth/reset-forgot-password`, payload);
+  resetForgotPassword(payload: resetforgotpasswordDto): Observable<any> {
+    return this.http.post(`${environment.apiUrl}/auth/reset-forgot-password`, payload);
   }
 
-  resendConfirmEmail(payload: ResendConfirmPayload): Observable<any> {
-    return this.http.post(`${BASE_URL}/auth/resend-confirm-email`, payload);
+  resendConfirmEmail(payload: sendConfirmEmailOtpBodyDto): Observable<any> {
+    return this.http.post(`${environment.apiUrl}/auth/resend-confirm-email`, payload);
   }
-  resendForgotPassword(payload: ResendConfirmPayload): Observable<any> {
-    return this.http.post(`${BASE_URL}/auth/resend-forgot-password`, payload);
+  resendForgotPassword(payload: sendConfirmEmailOtpBodyDto): Observable<any> {
+    return this.http.post(`${environment.apiUrl}/auth/resend-forgot-password`, payload);
   }
 
   // --- Password Reset Flow Local State ---
@@ -210,6 +176,40 @@ export class AuthService {
       localStorage.removeItem('otp_verified');
     } catch (e) { }
   }
+
+  // ──────────────────────────────────────────────
+  // REFRESH TOKEN
+  // ──────────────────────────────────────────────
+  refresh(): Observable<any> {
+    if (!this.isBrowser) return new Observable();
+    const refreshToken = localStorage.getItem(KEY_REFRESH);
+    return this.http.post(`${environment.apiUrl}/auth/refresh`, {}, {
+      headers: new HttpHeaders({ Authorization: `Bearer ${refreshToken}` })
+    });
+  }
+
+
+  // ──────────────────────────────────────────────
+  // LOGOUT (Backend)
+  // ──────────────────────────────────────────────
+  logoutBackend(payload: logoutDto): Observable<any> {
+    return this.http.post(`${environment.apiUrl}/auth/logout`, payload);
+  }
+
+  // ──────────────────────────────────────────────
+  // LOGIN WITH GMAIL
+  // ──────────────────────────────────────────────
+  loginWithGmail(payload: signupWithGmailDto): Observable<LoginResponse> {
+    return this.http.post<LoginResponse>(`${environment.apiUrl}/auth/loginWithGmail`, payload);
+  }
+
+  // ──────────────────────────────────────────────
+  // CONFIRM EMAIL
+  // ──────────────────────────────────────────────
+  confirmEmail(payload: ConfirmEmailOtpBodyDto): Observable<any> {
+    return this.http.post(`${environment.apiUrl}/auth/confirm-email`, payload);
+  }
+
 
   // ──────────────────────────────────────────────
   // GOOGLE IDENTITY SERVICES (browser only)

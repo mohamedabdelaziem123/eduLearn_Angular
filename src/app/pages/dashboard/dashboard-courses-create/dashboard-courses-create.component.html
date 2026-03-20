@@ -52,19 +52,17 @@
                             </div>
 
                             <!-- Row: Specialty & Teacher -->
-                            <div class="flex flex-col md:flex-row gap-6">
+                            <div class="flex flex-col md:flex-row gap-6 relative z-50">
                                 <div class="flex-1">
                                     <label class="block text-[13px] font-bold text-slate-800 mb-2">Specialty /
                                         Subject</label>
                                     <div class="relative">
-                                        <select formControlName="subjectId"
-                                            class="w-full h-11 px-4 bg-[#f8f9fb] border border-gray-200 rounded-full text-[14px] text-slate-700 appearance-none focus:outline-none focus:ring-2 focus:ring-[#1811c7]/20 focus:border-[#1811c7]/50 transition-all font-medium cursor-pointer">
-                                            <option value="" disabled selected>Select Specialty</option>
-                                            <option *ngFor="let subject of subjects" [value]="subject._id">{{
-                                                subject.name }}</option>
-                                        </select>
-                                        <span
-                                            class="material-symbols-outlined absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none text-[20px]">expand_more</span>
+                                        <app-dropdown-menu
+                                            [options]="subjectOptions"
+                                            [selectedValue]="courseForm.get('subjectId')?.value"
+                                            (selectionChange)="courseForm.get('subjectId')?.setValue($event)"
+                                            placeholder="Select Specialty">
+                                        </app-dropdown-menu>
                                     </div>
                                 </div>
 
@@ -72,13 +70,15 @@
                                     <label class="block text-[13px] font-bold text-slate-800 mb-2">Teacher
                                         Assignment</label>
                                     <div class="relative">
-                                        <select formControlName="teacherId"
-                                            class="w-full h-11 px-4 bg-[#f8f9fb] border border-gray-200 rounded-full text-[14px] text-slate-700 appearance-none focus:outline-none focus:ring-2 focus:ring-[#1811c7]/20 focus:border-[#1811c7]/50 transition-all font-medium cursor-pointer">
-                                            <option value="" disabled selected>Select Instructor</option>
-                                            <option value="699ce46c86413bae7db7ca77">Ahmed Hassan</option>
-                                        </select>
-                                        <span
-                                            class="material-symbols-outlined absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none text-[20px]">expand_more</span>
+                                        <app-dropdown-menu
+                                            [options]="teacherOptions"
+                                            [selectedValue]="courseForm.get('teacherId')?.value"
+                                            (selectionChange)="courseForm.get('teacherId')?.setValue($event)"
+                                            placeholder="Select Instructor">
+                                        </app-dropdown-menu>
+                                        <div *ngIf="isLoadingTeachers" class="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none">
+                                            <span class="material-symbols-outlined text-[18px] text-slate-400 animate-spin">progress_activity</span>
+                                        </div>
                                     </div>
                                 </div>
                             </div>

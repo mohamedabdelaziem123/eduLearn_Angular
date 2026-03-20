@@ -1,9 +1,9 @@
 import { Routes } from '@angular/router';
-import { DashboardStudentsComponent } from './pages/dashboard/dashboard-students/dashboard-students.component';
+
 
 export const routes: Routes = [
-  // Default route redirects to home
-  { path: '', redirectTo: 'home', pathMatch: 'full' },
+  // Default route redirects to login
+  { path: '', redirectTo: 'login', pathMatch: 'full' },
 
   // ─── Auth Pages ───────────────────────────────────────────
   {
@@ -74,6 +74,36 @@ export const routes: Routes = [
     path: 'dashboard/teachers/create',
     loadComponent: () =>
       import('./pages/dashboard/dashboard-teachers-create/dashboard-teachers-create.component').then((m) => m.DashboardTeachersCreateComponent),
+  },
+  {
+    path: 'dashboard/subjects',
+    loadComponent: () =>
+      import('./pages/dashboard/dashboard-subjects/dashboard-subjects.component').then((m) => m.DashboardSubjectsComponent),
+  },
+  {
+    path: 'dashboard/subjects/create',
+    loadComponent: () =>
+      import('./pages/dashboard/dashboard-subjects-create/dashboard-subjects-create.component').then((m) => m.DashboardSubjectsCreateComponent),
+  },
+  {
+    path: 'dashboard/subjects/edit/:subjectId',
+    loadComponent: () =>
+      import('./pages/dashboard/dashboard-subjects-create/dashboard-subjects-create.component').then((m) => m.DashboardSubjectsCreateComponent),
+  },
+  {
+    path: 'dashboard/teacher-courses',
+    loadComponent: () =>
+      import('./pages/dashboard/dashboard-teacher-courses/dashboard-teacher-courses.component').then((m) => m.DashboardTeacherCoursesComponent),
+  },
+  {
+    path: 'teacher-quizzes',
+    loadComponent: () =>
+      import('./pages/teacher-quizzes/teacher-quizzes.component').then((m) => m.TeacherQuizzesComponent),
+  },
+  {
+    path: 'teacher-result/:attemptId',
+    loadComponent: () =>
+      import('./pages/teacher-result/teacher-result.component').then((m) => m.TeacherResultComponent),
   },
   // TODO: Add more routes here (courses, lessons, profile…)
 
