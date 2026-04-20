@@ -70,7 +70,7 @@
                                 <td class="px-7 py-5">
                                     <div class="flex items-center gap-4">
                                         <div class="h-11 w-11 rounded-lg flex-shrink-0 overflow-hidden bg-slate-100">
-                                            <img *ngIf="course.courseImage && getImageUrl(course.courseImage)" 
+                                            <img referrerpolicy="no-referrer" *ngIf="course.courseImage && getImageUrl(course.courseImage)" 
                                                 [src]="getImageUrl(course.courseImage)"
                                                 [alt]="course.title"
                                                 class="w-full h-full object-cover" />
@@ -89,7 +89,7 @@
                                 <td class="px-6 py-5">
                                     <div class="flex items-center gap-3">
                                         <div class="h-8 w-8 rounded-full overflow-hidden bg-slate-200 flex items-center justify-center">
-                                            <img *ngIf="course.teacherImage && getImageUrl(course.teacherImage)" 
+                                            <img referrerpolicy="no-referrer" *ngIf="course.teacherImage && getImageUrl(course.teacherImage)" 
                                                 [src]="getImageUrl(course.teacherImage)"
                                                 [alt]="course.teacherName"
                                                 class="h-full w-full object-cover shadow-sm" />

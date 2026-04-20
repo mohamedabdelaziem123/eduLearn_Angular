@@ -1,0 +1,177 @@
+<div class="bg-slate-50 font-display text-slate-900 min-h-screen pb-12">
+    <app-nav-bar [isTeacherNav]="true" activeRoute="dashboard"></app-nav-bar>
+
+    <main class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <!-- Breadcrumbs -->
+        <nav class="flex items-center gap-2 text-sm font-medium text-slate-500 mb-6">
+            <a class="hover:text-blue-600 transition-colors cursor-pointer" routerLink="/dashboard/teacher-courses">Courses</a>
+            <span class="material-symbols-outlined text-sm">chevron_right</span>
+            <a class="hover:text-blue-600 transition-colors cursor-pointer" [routerLink]="['/manage-lesson', courseId]">{{ course?.title || 'Course' }}</a>
+            <span class="material-symbols-outlined text-sm">chevron_right</span>
+            <span class="text-slate-900">Create Quiz</span>
+        </nav>
+
+        <!-- Header -->
+        <div class="mb-8">
+            <div class="flex items-center gap-4 mb-3">
+                <button (click)="goBack()" class="size-10 rounded-xl border border-slate-200 bg-white flex items-center justify-center text-slate-500 hover:text-slate-800 hover:border-slate-400 transition-all shadow-sm">
+                    <span class="material-symbols-outlined text-xl">arrow_back</span>
+                </button>
+                <div>
+                    <h2 class="text-3xl font-black text-slate-900 tracking-tight">Create Quiz</h2>
+                    <p class="text-slate-500 text-sm mt-0.5">
+                        Set up a new quiz for
+                        <span class="font-bold text-slate-700">{{ lesson?.title || 'this lesson' }}</span>
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Loading State -->
+        <div *ngIf="isLoading" class="flex justify-center items-center py-20">
+            <div class="animate-spin rounded-full h-10 w-10 border-b-2 border-blue-600"></div>
+        </div>
+
+        <!-- Form Card -->
+        <form *ngIf="!isLoading" [formGroup]="quizForm" (ngSubmit)="onSubmit()" class="space-y-6">
+            <!-- Context Info (Course + Lesson) -->
+            <div class="bg-indigo-50 border border-indigo-100 rounded-2xl p-5 flex items-start gap-4">
+                <div class="size-10 rounded-xl bg-indigo-100 flex items-center justify-center flex-shrink-0">
+                    <span class="material-symbols-outlined text-indigo-600">info</span>
+                </div>
+                <div class="text-sm">
+                    <p class="text-indigo-800"><span class="font-bold">Course:</span> {{ course?.title || courseId }}</p>
+                    <p class="text-indigo-800 mt-1"><span class="font-bold">Lesson:</span> {{ lesson?.title || lessonId }}</p>
+                    <p class="text-indigo-600 mt-2 text-xs">The quiz will be linked to this lesson. Questions are automatically picked from its question bank.</p>
+                </div>
+            </div>
+
+            <!-- Title -->
+            <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 space-y-5">
+                <h3 class="text-lg font-bold text-slate-900 flex items-center gap-2">
+                    <span class="material-symbols-outlined text-blue-600">quiz</span>
+                    Quiz Details
+                </h3>
+
+                <div>
+                    <label for="quizTitle" class="block text-xs uppercase font-extrabold text-slate-400 tracking-wider mb-2">Quiz Title *</label>
+                    <input id="quizTitle" formControlName="title" type="text"
+                           placeholder="e.g. Algebra Fundamentals Quiz"
+                           class="w-full px-4 py-3 rounded-xl border border-slate-200 bg-white text-sm font-medium focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                           [ngClass]="{'border-red-400 ring-1 ring-red-400': f['title'].touched && f['title'].invalid}">
+                    <p *ngIf="f['title'].touched && f['title'].invalid" class="text-red-500 text-xs mt-1.5 font-medium">
+                        Title is required (min 3 characters).
+                    </p>
+                </div>
+
+                <div>
+                    <label for="quizDesc" class="block text-xs uppercase font-extrabold text-slate-400 tracking-wider mb-2">Description (optional)</label>
+                    <textarea id="quizDesc" formControlName="description" rows="3"
+                              placeholder="Brief description of the quiz topics..."
+                              class="w-full px-4 py-3 rounded-xl border border-slate-200 bg-white text-sm font-medium focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all resize-none"></textarea>
+                </div>
+            </div>
+
+            <!-- Settings -->
+            <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 space-y-5">
+                <h3 class="text-lg font-bold text-slate-900 flex items-center gap-2">
+                    <span class="material-symbols-outlined text-blue-600">settings</span>
+                    Quiz Settings
+                </h3>
+
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-5">
+                    <!-- Time Limit -->
+                    <div>
+                        <label for="timeLimit" class="block text-xs uppercase font-extrabold text-slate-400 tracking-wider mb-2">Time Limit (min) *</label>
+                        <div class="relative">
+                            <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-lg">timer</span>
+                            <input id="timeLimit" formControlName="timeLimitMinutes" type="number" min="1" max="180"
+                                   class="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-200 bg-white text-sm font-medium focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                                   [ngClass]="{'border-red-400 ring-1 ring-red-400': f['timeLimitMinutes'].touched && f['timeLimitMinutes'].invalid}">
+                        </div>
+                        <p *ngIf="f['timeLimitMinutes'].touched && f['timeLimitMinutes'].invalid" class="text-red-500 text-xs mt-1.5 font-medium">
+                            Enter 1–180 minutes.
+                        </p>
+                    </div>
+
+                    <!-- Minimum Pass Score -->
+                    <div>
+                        <label for="passScore" class="block text-xs uppercase font-extrabold text-slate-400 tracking-wider mb-2">Pass Score *</label>
+                        <div class="relative">
+                            <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-lg">check_circle</span>
+                            <input id="passScore" formControlName="minimumPassScore" type="number" min="1"
+                                   class="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-200 bg-white text-sm font-medium focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                                   [ngClass]="{'border-red-400 ring-1 ring-red-400': f['minimumPassScore'].touched && f['minimumPassScore'].invalid}">
+                        </div>
+                        <p class="text-slate-400 text-xs mt-1.5">Minimum correct answers to pass.</p>
+                    </div>
+
+                    <!-- Questions Per Level -->
+                    <div>
+                        <label for="qpl" class="block text-xs uppercase font-extrabold text-slate-400 tracking-wider mb-2">Per Level *</label>
+                        <div class="relative">
+                            <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-lg">layers</span>
+                            <input id="qpl" formControlName="questionsPerLevel" type="number" min="1" max="20"
+                                   class="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-200 bg-white text-sm font-medium focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                                   [ngClass]="{'border-red-400 ring-1 ring-red-400': f['questionsPerLevel'].touched && f['questionsPerLevel'].invalid}">
+                        </div>
+                        <p class="text-slate-400 text-xs mt-1.5">Questions per difficulty level.</p>
+                    </div>
+                </div>
+
+                <!-- Total Questions Preview -->
+                <div class="bg-slate-50 rounded-xl p-4 border border-slate-100 flex items-center justify-between">
+                    <div class="flex items-center gap-3">
+                        <span class="material-symbols-outlined text-blue-600">calculate</span>
+                        <span class="text-sm font-bold text-slate-700">Total Questions</span>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <span class="text-xs text-slate-500 font-medium">{{ quizForm.get('questionsPerLevel')?.value || 0 }} × 3 levels =</span>
+                        <span class="text-2xl font-black text-blue-600">{{ totalQuestions }}</span>
+                    </div>
+                </div>
+
+                <!-- Difficulty Breakdown -->
+                <div class="grid grid-cols-3 gap-3">
+                    <div class="bg-green-50 border border-green-100 rounded-xl p-3 text-center">
+                        <p class="text-[10px] uppercase font-black tracking-widest text-green-600 mb-1">Easy</p>
+                        <p class="text-xl font-black text-green-700">{{ quizForm.get('questionsPerLevel')?.value || 0 }}</p>
+                    </div>
+                    <div class="bg-amber-50 border border-amber-100 rounded-xl p-3 text-center">
+                        <p class="text-[10px] uppercase font-black tracking-widest text-amber-600 mb-1">Medium</p>
+                        <p class="text-xl font-black text-amber-700">{{ quizForm.get('questionsPerLevel')?.value || 0 }}</p>
+                    </div>
+                    <div class="bg-red-50 border border-red-100 rounded-xl p-3 text-center">
+                        <p class="text-[10px] uppercase font-black tracking-widest text-red-600 mb-1">Hard</p>
+                        <p class="text-xl font-black text-red-700">{{ quizForm.get('questionsPerLevel')?.value || 0 }}</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Success / Error Messages -->
+            <div *ngIf="submitSuccess" class="bg-green-50 border border-green-200 rounded-xl p-4 flex items-center gap-3">
+                <span class="material-symbols-outlined text-green-600">check_circle</span>
+                <p class="text-green-800 font-bold text-sm">Quiz created successfully! Redirecting...</p>
+            </div>
+
+            <div *ngIf="submitError" class="bg-red-50 border border-red-200 rounded-xl p-4 flex items-center gap-3">
+                <span class="material-symbols-outlined text-red-500">error</span>
+                <p class="text-red-700 font-bold text-sm">{{ submitError }}</p>
+            </div>
+
+            <!-- Actions -->
+            <div class="flex items-center justify-between pt-2">
+                <button type="button" (click)="goBack()"
+                        class="px-6 py-3 border border-slate-200 rounded-xl text-sm font-bold text-slate-600 bg-white hover:bg-slate-50 transition-colors shadow-sm">
+                    Cancel
+                </button>
+                <button type="submit" [disabled]="isSubmitting"
+                        class="px-8 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-sm font-bold transition-all shadow-sm shadow-blue-200 hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2">
+                    <div *ngIf="isSubmitting" class="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                    <span class="material-symbols-outlined text-lg" *ngIf="!isSubmitting">rocket_launch</span>
+                    {{ isSubmitting ? 'Creating...' : 'Create Quiz' }}
+                </button>
+            </div>
+        </form>
+    </main>
+</div>

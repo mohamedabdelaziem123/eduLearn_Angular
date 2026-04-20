@@ -90,8 +90,9 @@ export class SignupComponent implements AfterViewInit {
     this.authService.signup(payload).subscribe({
       next: (_response) => {
         this.isLoading = false;
-        this.successMessage = 'Account created! Redirecting to login…';
-        setTimeout(() => this.router.navigate(['/login']), 500);
+        this.successMessage = 'Account created! Redirecting to email verification…';
+        this.authService.setConfirmEmailState(val.email);
+        setTimeout(() => this.router.navigate(['/confirm-email']), 500);
       },
       error: (err) => {
         this.isLoading = false;

@@ -22,6 +22,15 @@ export class TeacherResultComponent implements OnInit {
   passedStudent: any = null;
   passedScore: any = null;
   passedPercentage: any = null;
+  passedLessonId: string | null = null;
+  passedCourseId: string | null = null;
+
+  // Performance data (student view only)
+  lessonPerformance: any = null;
+  coursePerformance: any = null;
+
+  lessonAvgPercent: number = 0;
+  courseAvgPercent: number = 0;
 
   constructor(
     private route: ActivatedRoute,
@@ -29,12 +38,26 @@ export class TeacherResultComponent implements OnInit {
     private adminService: AdminService
   ) {}
 
+  get isStudent(): boolean {
+    const role = (localStorage.getItem('user_role') || '').toLowerCase();
+    return role === 'student';
+  }
+
+  get isTeacher(): boolean {
+    const role = (localStorage.getItem('user_role') || '').toLowerCase();
+    return role === 'teacher' || role === 'admin';
+  }
+
   ngOnInit(): void {
     const state = typeof history !== 'undefined' ? history.state : null;
-    if (state && state.student) {
-      this.passedStudent = state.student;
-      this.passedScore = state.score;
-      this.passedPercentage = state.percentage;
+    if (state) {
+      if (state.student) {
+        this.passedStudent = state.student;
+        this.passedScore = state.score;
+        this.passedPercentage = state.percentage;
+      }
+      this.passedLessonId = state.lessonId || null;
+      this.passedCourseId = state.courseId || null;
     }
 
     this.route.paramMap.subscribe(params => {
@@ -47,16 +70,25 @@ export class TeacherResultComponent implements OnInit {
 
   loadAttempt(id: string): void {
     this.isLoading = true;
-    this.quizService.getAttemptForTeacher(id).subscribe({
+    const request$ = this.isTeacher
+      ? this.quizService.getAttemptForTeacher(id)
+      : this.quizService.getAttempt(id);
+
+    request$.subscribe({
       next: (res: any) => {
         console.log(res, 'attempt');
         
         this.attempt = res?.data || res;
         this.isLoading = false;
 
-        // Force fetch full user object via AdminService now that role guards are cleared
-        if (this.attempt?.studentId) {
+        // For teachers, fetch student profile
+        if (this.isTeacher && this.attempt?.studentId) {
           this.fetchStudentData(this.attempt.studentId);
+        }
+
+        // For students, fetch performance data
+        if (this.isStudent) {
+          this.loadPerformanceData();
         }
       },
       error: (err) => {
@@ -66,12 +98,53 @@ export class TeacherResultComponent implements OnInit {
     });
   }
 
+  loadPerformanceData(): void {
+    let lessonId = this.attempt?.lessonId || this.passedLessonId;
+    let courseId = this.attempt?.courseId || this.passedCourseId;
+
+    console.log(lessonId , 'lessonId');
+    console.log(courseId , 'courseId');
+
+    if (typeof lessonId === 'object' && lessonId !== null) {
+      lessonId = lessonId._id || lessonId.id;
+    }
+    if (typeof courseId === 'object' && courseId !== null) {
+      courseId = courseId._id || courseId.id;
+    }
+
+    if (lessonId) {
+      this.quizService.getLessonPerformance(lessonId).subscribe({
+        next: (res: any) => {
+          this.lessonPerformance = res?.data || res;
+          console.log('[Performance] lesson:', this.lessonPerformance);
+          if (this.lessonPerformance?.lessonAverageScore != null) {
+              this.lessonAvgPercent = Math.round(this.lessonPerformance.lessonAverageScore);
+              if (this.lessonAvgPercent > 100) this.lessonAvgPercent = 100;
+          }
+        },
+        error: (err) => console.error('Error loading lesson performance', err)
+      });
+    }
+
+    if (courseId) {
+      this.quizService.getCoursePerformance(courseId).subscribe({
+        next: (res: any) => {
+          this.coursePerformance = res?.data || res;
+          console.log('[Performance] course:', this.coursePerformance);
+          if (this.coursePerformance?.courseAverageScore != null) {
+              this.courseAvgPercent = Math.round(this.coursePerformance.courseAverageScore);
+              if (this.courseAvgPercent > 100) this.courseAvgPercent = 100;
+          }
+        },
+        error: (err) => console.error('Error loading course performance', err)
+      });
+    }
+  }
+
   fetchStudentData(studentId: string): void {
     this.adminService.getUserDetails(studentId).subscribe({
       next: (res: any) => {
-
         console.log(res.data, 'profile');
-        
         // Hydrate the passed student manually from the remote payload
         this.passedStudent = res?.data || res;
       },
@@ -80,8 +153,6 @@ export class TeacherResultComponent implements OnInit {
       }
     });
   }
-
-
 
   getStudent(): any {
     // Return router state student first since API only provides studentId loosely
@@ -111,5 +182,9 @@ export class TeacherResultComponent implements OnInit {
 
   hasStudentSelected(option: any, studentAnswerStr: string): boolean {
     return option.text === studentAnswerStr || option._id?.toString() === studentAnswerStr;
+  }
+
+  getScoreDiff(): number {
+    return (this.attempt?.percentage || 0) - this.lessonAvgPercent;
   }
 }

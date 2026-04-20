@@ -1,5 +1,6 @@
 import { Component, OnInit, inject, PLATFORM_ID } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
+import { RouterModule } from '@angular/router';
 import { environment } from '../../../enviroment/enviroment';
 import { NavBarComponent } from '../../../components/nav-bar/nav-bar.component';
 import { TeacherService } from '../../../services/teacher.service';
@@ -8,7 +9,7 @@ import { CourseService } from '../../../services/course.service';
 @Component({
   selector: 'app-dashboard-teacher-courses',
   standalone: true,
-  imports: [CommonModule, NavBarComponent],
+  imports: [CommonModule, NavBarComponent, RouterModule],
   templateUrl: './dashboard-teacher-courses.component.html'
 })
 export class DashboardTeacherCoursesComponent implements OnInit {

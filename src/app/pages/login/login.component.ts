@@ -60,9 +60,16 @@ export class LoginComponent implements AfterViewInit {
     this.authService.login(this.form.value).subscribe({
       next: (_res) => {
         this.isLoading = false;
-        const role = this.authService.getRole();
+        const role = this.authService.getRole()?.toLowerCase();
         console.log(`Logged in as role: "${role}"`);
-        this.router.navigate(['/dashboard/students']);
+        
+        if (role === 'admin') {
+          this.router.navigate(['/dashboard/orders']);
+        } else if (role === 'teacher') {
+          this.router.navigate(['/dashboard/teacher-courses']);
+        } else {
+          this.router.navigate(['/discovery']);
+        }
       },
       error: (err) => {
         this.isLoading = false;

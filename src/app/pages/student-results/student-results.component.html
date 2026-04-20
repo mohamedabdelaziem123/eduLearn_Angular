@@ -1,0 +1,122 @@
+<div class="flex flex-col min-h-screen w-full bg-[#f8f9fc] font-inter text-slate-800">
+    <app-nav-bar [isTeacherNav]="false" activeRoute="results"></app-nav-bar>
+
+    <main class="flex-1 overflow-y-auto px-8 py-10">
+        <div class="max-w-[1400px] mx-auto flex flex-col gap-8">
+            
+            <!-- HEADER -->
+            <div class="flex flex-col">
+                <h2 class="text-[36px] font-extrabold text-[#111827] tracking-tight">My Results</h2>
+                <p class="text-slate-500 mt-2 text-[16px] font-medium max-w-xl">
+                    Review your quiz performance across all enrolled courses.
+                </p>
+            </div>
+
+            <!-- Dashboard Layout (Grid) -->
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+                
+                <!-- LEFT COLUMN: Courses (4 cols) -->
+                <div class="col-span-1 lg:col-span-4 flex flex-col gap-4">
+                    <div class="flex items-center justify-between mb-2">
+                        <h3 class="text-[18px] font-bold text-slate-900">Your Courses</h3>
+                        <span class="px-2.5 py-1 bg-blue-100 text-blue-700 text-[12px] font-bold rounded-md">
+                            {{ courses.length }} ENROLLED
+                        </span>
+                    </div>
+
+                    <div *ngIf="isLoadingCourses" class="flex justify-center p-8">
+                        <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+                    </div>
+
+                    <div *ngIf="!isLoadingCourses" class="flex flex-col gap-4">
+                        <div *ngFor="let course of courses" 
+                             (click)="selectCourse(course)"
+                             [class]="(course._id || course.id) === (selectedCourse?._id || selectedCourse?.id) 
+                                ? 'bg-white rounded-xl shadow-sm border-2 border-blue-600 overflow-hidden cursor-pointer transition-all' 
+                                : 'bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden cursor-pointer hover:border-blue-300 transition-all opacity-80 hover:opacity-100'">
+                            
+                            <!-- Course Thumbnail -->
+                            <div class="h-[120px] w-full bg-indigo-50 flex items-center justify-center p-2">
+                                <img referrerpolicy="no-referrer" *ngIf="course.image" [src]="getImageUrl(course.image)" class="w-full h-full object-cover rounded-md">
+                                <span *ngIf="!course.image" class="material-symbols-outlined text-[48px] text-indigo-200">school</span>
+                            </div>
+                            
+                            <!-- Course Info -->
+                            <div class="p-4">
+                                <h4 class="font-bold text-slate-900 leading-tight mb-2">{{ course.title }}</h4>
+                                <div class="flex items-center gap-4 text-[12px] text-slate-500 font-medium">
+                                    <div class="flex items-center gap-1">
+                                        <span class="material-symbols-outlined text-[14px]">menu_book</span>
+                                        <span>{{ course.lessons?.length || 0 }} Lessons</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- RIGHT COLUMN: Results (8 cols) -->
+                <div class="col-span-1 lg:col-span-8 flex flex-col gap-6">
+                    
+                    <div class="flex items-center justify-between">
+                        <h3 class="text-[20px] font-bold text-slate-900">
+                            {{ selectedCourse?.title || 'Course' }}: Quiz Results
+                        </h3>
+                    </div>
+
+                    <!-- Loading -->
+                    <div *ngIf="isLoadingResults" class="flex justify-center p-10 bg-white rounded-3xl border border-gray-200">
+                        <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+                    </div>
+
+                    <!-- Empty -->
+                    <div *ngIf="!isLoadingResults && currentAttempts.length === 0" class="flex flex-col items-center justify-center p-16 bg-white rounded-3xl border border-gray-200 text-slate-500">
+                        <span class="material-symbols-outlined text-[48px] text-slate-300 mb-4">quiz</span>
+                        <p class="font-semibold text-slate-700">No quiz results yet</p>
+                        <p class="text-sm">Complete a quiz in this course to see your results here.</p>
+                    </div>
+
+                    <!-- Results List -->
+                    <div *ngIf="!isLoadingResults && currentAttempts.length > 0" class="space-y-3">
+                        <a *ngFor="let attempt of currentAttempts" 
+                             [routerLink]="['/teacher-result', attempt.attemptId]"
+                             [state]="{ courseId: selectedCourse?._id || selectedCourse?.id, lessonId: attempt.lessonId }"
+                             class="bg-white p-4 rounded-xl border border-slate-200 flex flex-wrap items-center justify-between gap-4 shadow-sm cursor-pointer hover:border-blue-300 transition-colors no-underline">
+                            
+                            <!-- Quiz Info -->
+                            <div class="flex items-center gap-4 min-w-[200px]">
+                                <div class="size-10 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 font-bold overflow-hidden">
+                                    <span class="material-symbols-outlined text-[20px]">quiz</span>
+                                </div>
+                                <div>
+                                    <h4 class="font-bold text-slate-900 leading-none">{{ attempt.quizTitle }}</h4>
+                                    <p class="text-xs text-slate-500 mt-1">{{ attempt.lessonTitle || 'General Quiz' }}</p>
+                                </div>
+                            </div>
+                            
+                            <!-- Score -->
+                            <div class="flex flex-col items-center sm:items-start">
+                                <div [class]="attempt.percentage === 100 ? 'text-sm font-black text-green-600' : 'text-sm font-black text-slate-900'">
+                                    {{ attempt.score }}/{{ attempt.totalQuestions }} <span class="text-xs font-medium text-slate-400 ml-1">({{ attempt.percentage | number:'1.0-0' }}%)</span>
+                                </div>
+                                <div class="mt-1 w-24 h-1.5 bg-slate-100 rounded-full overflow-hidden">
+                                    <div [class]="attempt.isPassed ? (attempt.percentage === 100 ? 'h-full bg-green-500 rounded-full' : 'h-full bg-blue-600 rounded-full') : 'h-full bg-orange-500 rounded-full'" 
+                                         [style.width]="attempt.percentage + '%'"></div>
+                                </div>
+                            </div>
+                            
+                            <!-- Status & Timing -->
+                            <div class="flex flex-col items-end gap-2">
+                                <span *ngIf="attempt.isPassed" class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-green-100 text-green-700 uppercase tracking-wider">Pass</span>
+                                <span *ngIf="!attempt.isPassed" class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-red-100 text-red-700 uppercase tracking-wider">Fail</span>
+                                <p class="text-[10px] font-medium text-slate-500">{{ getTimeAgo(attempt.createdAt) }}</p>
+                            </div>
+                        </a>
+                    </div>
+
+                </div>
+            </div>
+
+        </div>
+    </main>
+</div>

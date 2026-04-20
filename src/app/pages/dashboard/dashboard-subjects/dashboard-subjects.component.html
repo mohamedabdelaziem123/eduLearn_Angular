@@ -69,7 +69,7 @@
                             </tr>
 
                             <ng-container *ngIf="!isLoading">
-                                @for (subject of paginatedSubjects; track subject._id) {
+                                @for (subject of paginatedSubjects; track subject._id || subject.id) {
                                 <tr class="hover:bg-gray-50/50 transition-colors group">
                                     <!-- Subject Name -->
                                     <td class="px-6 py-4">
@@ -101,9 +101,9 @@
                                     <!-- Actions -->
                                     <td class="px-6 py-4 text-right">
                                         <div class="flex items-center justify-end gap-3">
-                                            <button (click)="editSubject(subject._id)"
+                                            <button (click)="editSubject(subject._id || subject.id)"
                                                 class="text-sm font-medium text-blue-500 hover:text-blue-700 transition-colors">Edit</button>
-                                            <button (click)="deleteSubject(subject._id)"
+                                            <button (click)="deleteSubject(subject._id || subject.id)"
                                                 class="text-sm font-medium text-red-500 hover:text-red-700 transition-colors">Delete</button>
                                         </div>
                                     </td>

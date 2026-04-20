@@ -29,3 +29,15 @@ export interface CourseResponse {
   createdAt?: Date;
   updatedAt?: Date;
 }
+
+export interface StudentCourseResponse {
+  _id: EntityId;
+  title: string;
+  description: string;
+  image?: string;
+  status: CourseStatus;
+  teacherId: EntityId | IUser;
+  subjectId: EntityId | ISubject;
+  createdAt?: Date;
+  updatedAt?: Date;
+}

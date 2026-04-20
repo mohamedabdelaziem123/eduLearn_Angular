@@ -13,11 +13,17 @@
         </div>
 
         <nav class="px-4 mt-4 space-y-1.5">
-            <a routerLink="/home"
-                [class]="activeRoute === 'dashboard' ? 'flex items-center gap-4 px-4 py-3 rounded-xl bg-[#1d1ed9] text-white shadow-md transition-colors cursor-pointer' : 'flex items-center gap-4 px-4 py-3 rounded-xl text-slate-300 hover:bg-[#2d2e4d] transition-colors cursor-pointer'">
+            <a 
+                [class]="activeRoute === 'dashboard' ? 'flex items-center gap-4 px-4 py-3 rounded-xl bg-[#1d1ed9] text-white shadow-md transition-colors cursor-pointer' : 'flex items-center gap-4 px-4 py-3 rounded-xl text-slate-300  transition-colors '">
                 <span class="material-symbols-outlined text-[22px]">grid_view</span>
                 <span class="text-sm"
                     [ngClass]="activeRoute === 'dashboard' ? 'font-semibold' : 'font-medium'">Dashboard</span>
+            </a>
+            <a [routerLink]="'/dashboard/orders'"
+                [class]="activeRoute === 'orders' ? 'flex items-center gap-4 px-4 py-3 rounded-xl bg-[#1d1ed9] text-white shadow-md transition-colors cursor-pointer' : 'flex items-center gap-4 px-4 py-3 rounded-xl text-slate-300 hover:bg-[#2d2e4d] transition-colors cursor-pointer'">
+                <span class="material-symbols-outlined text-[22px]">receipt_long</span>
+                <span class="text-sm"
+                    [ngClass]="activeRoute === 'orders' ? 'font-semibold' : 'font-medium'">Orders</span>
             </a>
             <a routerLink="/dashboard/teachers"
                 [class]="activeRoute === 'teachers' ? 'flex items-center gap-4 px-4 py-3 rounded-xl bg-[#1d1ed9] text-white shadow-md transition-colors cursor-pointer' : 'flex items-center gap-4 px-4 py-3 rounded-xl text-slate-300 hover:bg-[#2d2e4d] transition-colors cursor-pointer'">
@@ -43,6 +49,7 @@
                 <span class="text-sm"
                     [ngClass]="activeRoute === 'subjects' ? 'font-semibold' : 'font-medium'">Subjects</span>
             </a>
+
         </nav>
     </div>
 

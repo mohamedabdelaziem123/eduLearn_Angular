@@ -2,6 +2,8 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { AuthService } from './auth.service';
+import { IResponse } from '../responses/interfaces/response.interface';
+import { StudentCourseResponse } from '../responses/course/entities/course.entity';
 
 import { environment } from '../enviroment/enviroment';
 
@@ -23,8 +25,9 @@ export class CourseService {
         return new HttpHeaders();
     }
 
-    getCourses(page: number = 1): Observable<any> {
-        return this.http.get(`${environment.apiUrl}/course?page=${page}`);
+    getCourses(page: number = 1, size?: number): Observable<any> {
+        const sizeParam = size ? `&size=${size}` : '';
+        return this.http.get(`${environment.apiUrl}/course?page=${page}${sizeParam}`, { headers: this.getHeaders() });
     }
 
     startProgress(id: string): Observable<any> {
@@ -51,8 +54,9 @@ export class CourseService {
         return this.http.get(`${environment.apiUrl}/subject`, { headers: this.getHeaders() });
     }
 
-    getCoursesBySubject(subjectId: string, page: number = 1): Observable<any> {
-        return this.http.get(`${environment.apiUrl}/subject/${subjectId}/courses?page=${page}`, { headers: this.getHeaders() });
+    getCoursesBySubject(subjectId: string, page: number = 1, size?: number): Observable<any> {
+        const sizeParam = size ? `&size=${size}` : '';
+        return this.http.get(`${environment.apiUrl}/subject/${subjectId}/courses?page=${page}${sizeParam}`, { headers: this.getHeaders() });
     }
 
     getCourseById(id: string): Observable<any> {
@@ -65,5 +69,12 @@ export class CourseService {
 
     updateCourse(id: string, data: FormData): Observable<any> {
         return this.http.patch(`${environment.apiUrl}/course/update-course/${id}`, data, { headers: this.getHeaders() });
+    }
+
+    getMyCourses(): Observable<IResponse<StudentCourseResponse[]>> {
+        return this.http.get<IResponse<StudentCourseResponse[]>>(
+            `${environment.apiUrl}/course/my-courses`,
+            { headers: this.getHeaders() }
+        );
     }
 }

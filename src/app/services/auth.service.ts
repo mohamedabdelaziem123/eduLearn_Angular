@@ -6,6 +6,7 @@ import { environment } from '../enviroment/enviroment';
 
 import { Router } from '@angular/router';
 import { Observable, tap } from 'rxjs';
+import { logoutEnum } from '../responses/enums';
 
 // ─────────────────────────────────────────────────────────────
 // ✏️ Your Google OAuth Client ID
@@ -91,16 +92,40 @@ export class AuthService {
     return localStorage.getItem(KEY_ACCESS);
   }
 
+  getRefreshToken(): string | null {
+    if (!this.isBrowser) return null;
+    return localStorage.getItem(KEY_REFRESH);
+  }
+
   isLoggedIn(): boolean {
     return !!this.getAccessToken();
   }
 
   logout(): void {
     if (!this.isBrowser) return;         // ← SSR guard
-    localStorage.removeItem(KEY_ACCESS);
-    localStorage.removeItem(KEY_REFRESH);
-    localStorage.removeItem(KEY_ROLE);
-    this.router.navigate(['/login']);
+    
+    const token = this.getAccessToken();
+    const clearAndNavigate = () => {
+        localStorage.removeItem(KEY_ACCESS);
+        localStorage.removeItem(KEY_REFRESH);
+        localStorage.removeItem(KEY_ROLE);
+        this.router.navigate(['/login']);
+    };
+
+    if (token) {
+        this.logoutBackend({ method: logoutEnum.oneDevice }).subscribe({
+            next: () => {
+                console.log('Successfully logged out from backend');
+                clearAndNavigate();
+            },
+            error: (err) => {
+                console.error('Error logging out from backend', err);
+                clearAndNavigate();
+            }
+        });
+    } else {
+        clearAndNavigate();
+    }
   }
 
   // ──────────────────────────────────────────────
@@ -174,6 +199,30 @@ export class AuthService {
     try {
       localStorage.removeItem('reset_email');
       localStorage.removeItem('otp_verified');
+    } catch (e) { }
+  }
+
+  // --- Confirm Email Flow Local State ---
+  setConfirmEmailState(email: string): void {
+    if (!this.isBrowser) return;
+    try {
+      localStorage.setItem('confirm_email', email);
+    } catch (e) { }
+  }
+
+  getConfirmEmailState(): string | null {
+    if (!this.isBrowser) return null;
+    try {
+      return localStorage.getItem('confirm_email');
+    } catch (e) {
+      return null;
+    }
+  }
+
+  clearConfirmEmailState(): void {
+    if (!this.isBrowser) return;
+    try {
+      localStorage.removeItem('confirm_email');
     } catch (e) { }
   }
 
@@ -256,8 +305,15 @@ export class AuthService {
           const { access_token, refresh_token } = res.data.credentials;
           this.storeTokens(access_token, refresh_token);
         }
-        // Navigate to home after successful Google sign-in
-        this.router.navigate(['/home']);
+        // Navigate based on role after successful Google sign-in
+        const role = this.getRole()?.toLowerCase();
+        if (role === 'admin') {
+          this.router.navigate(['/dashboard/orders']);
+        } else if (role === 'teacher') {
+          this.router.navigate(['/dashboard/teacher-courses']);
+        } else {
+          this.router.navigate(['/discovery']);
+        }
       },
       error: (err) => {
         const msg = err?.error?.message ?? err?.message ?? 'Google sign-in failed';

@@ -35,6 +35,7 @@ export interface TeacherResponse {
 
 export interface Subject {
   _id: string;
+  id?: string;
   name: string;
   description?: string;
   courses?: string[];

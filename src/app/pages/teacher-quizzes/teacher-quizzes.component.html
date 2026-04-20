@@ -31,13 +31,13 @@
                     <div *ngIf="!isLoadingCourses" class="flex flex-col gap-4">
                         <div *ngFor="let course of courses" 
                              (click)="selectCourse(course)"
-                             [class]="course._id === selectedCourse?._id 
+                             [class]="(course._id || course.id) === (selectedCourse?._id || selectedCourse?.id) 
                                 ? 'bg-white rounded-xl shadow-sm border-2 border-blue-600 overflow-hidden cursor-pointer transition-all' 
                                 : 'bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden cursor-pointer hover:border-blue-300 transition-all opacity-80 hover:opacity-100'">
                             
                             <!-- Course Thumbnail Placeholder or Image -->
                             <div class="h-[120px] w-full bg-indigo-50 flex items-center justify-center p-2">
-                                <img *ngIf="course.image" [src]="getImageUrl(course.image)" class="w-full h-full object-cover rounded-md">
+                                <img referrerpolicy="no-referrer" *ngIf="course.image" [src]="getImageUrl(course.image)" class="w-full h-full object-cover rounded-md">
                                 <span *ngIf="!course.image" class="material-symbols-outlined text-[48px] text-indigo-200">science</span>
                             </div>
                             
@@ -88,7 +88,7 @@
                                 
                                 <div class="flex items-center gap-6">
                                     <!-- Index Badge -->
-                                    <div [class]="lesson._id === selectedLesson?._id 
+                                    <div [class]="(lesson._id || lesson.id) === (selectedLesson?._id || selectedLesson?.id) 
                                         ? 'h-12 w-12 rounded-xl bg-blue-100 text-blue-700 flex items-center justify-center font-bold text-lg'
                                         : 'h-12 w-12 rounded-xl bg-slate-100 text-slate-500 flex items-center justify-center font-bold text-lg'">
                                         {{ i + 1 < 10 ? '0' + (i + 1) : (i + 1) }}
@@ -104,10 +104,10 @@
                                 </div>
                                 
                                 <!-- State Button -->
-                                <button *ngIf="lesson._id !== selectedLesson?._id" class="px-5 py-2.5 rounded-xl bg-slate-100 text-slate-700 font-bold text-sm flex items-center gap-2 hover:bg-slate-200 transition-colors">
+                                <button *ngIf="(lesson._id || lesson.id) !== (selectedLesson?._id || selectedLesson?.id)" class="px-5 py-2.5 rounded-xl bg-slate-100 text-slate-700 font-bold text-sm flex items-center gap-2 hover:bg-slate-200 transition-colors">
                                     <span class="material-symbols-outlined text-[18px]">bar_chart</span> View Results
                                 </button>
-                                <button *ngIf="lesson._id === selectedLesson?._id" class="px-5 py-2.5 rounded-xl bg-blue-600 text-white font-bold text-sm flex items-center gap-2 shadow-sm">
+                                <button *ngIf="(lesson._id || lesson.id) === (selectedLesson?._id || selectedLesson?.id)" class="px-5 py-2.5 rounded-xl bg-blue-600 text-white font-bold text-sm flex items-center gap-2 shadow-sm">
                                     <span class="material-symbols-outlined text-[18px]">visibility</span> Currently Viewing
                                 </button>
                             </div>
@@ -138,61 +138,37 @@
                         <p class="text-sm">Try adjusting your search query.</p>
                     </div>
 
-                    <div *ngIf="!isLoadingResults && studentResults.length > 0" class="flex flex-col gap-4">
+                    <div *ngIf="!isLoadingResults && studentResults.length > 0" class="space-y-3">
                         <div *ngFor="let result of studentResults" 
                              [routerLink]="['/teacher-result', result._id || result.id || result.attemptId]"
                              [state]="{ student: result.student, score: result.score, percentage: result.percentage }"
-                             class="relative group flex items-center bg-white rounded-2xl border border-gray-200 p-5 shadow-sm overflow-hidden cursor-pointer transition-all hover:border-blue-300">
+                             class="bg-white dark:bg-slate-800 p-4 rounded-xl border border-slate-200 dark:border-slate-700 flex flex-wrap items-center justify-between gap-4 shadow-sm cursor-pointer hover:border-blue-300 transition-colors">
                             
-                            <!-- Hover Overlay: Blue Opacity 0.5 -->
-                            <div class="absolute inset-0 bg-blue-600/50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-10">
-                                <span class="text-white font-bold flex items-center gap-2 transform translate-y-2 group-hover:translate-y-0 transition-all duration-300">
-                                    <span class="material-symbols-outlined text-[20px]">visibility</span> View Result
-                                </span>
-                            </div>
-
-                            <!-- Student Profile -->
-                            <div class="flex flex-col gap-2 w-[300px]">
-                                <div class="flex items-center gap-4">
-                                    <div class="h-12 w-12 rounded-full overflow-hidden bg-orange-200 text-orange-700 flex items-center justify-center font-bold text-lg flex-shrink-0 border border-gray-100 shadow-sm relative z-0">
-                                        <img *ngIf="studentProfiles[result.student?._id || result.studentId]?.profileImage && getImageUrl(studentProfiles[result.student?._id || result.studentId]?.profileImage)" [src]="getImageUrl(studentProfiles[result.student?._id || result.studentId]?.profileImage)" alt="Profile" class="h-full w-full object-cover">
-                                        <span *ngIf="!studentProfiles[result.student?._id || result.studentId]?.profileImage || !getImageUrl(studentProfiles[result.student?._id || result.studentId]?.profileImage)">{{ result.student?.firstName?.[0] || '?' }}{{ result.student?.lastName?.[0] || '' }}</span>
-                                    </div>
-                                    <div class="flex flex-col overflow-hidden">
-                                        <h4 class="font-bold text-slate-900 truncate">{{ result.student?.firstName }} {{ result.student?.lastName }}</h4>
-                                        <p class="text-[13px] text-slate-500 truncate">{{ result.student?.email }}</p>
-                                    </div>
+                            <div class="flex items-center gap-4 min-w-[200px]">
+                                <div class="size-10 rounded-full bg-slate-100 dark:bg-slate-700 flex items-center justify-center text-slate-600 dark:text-slate-300 font-bold overflow-hidden">
+                                    <img referrerpolicy="no-referrer" *ngIf="(studentProfiles[result.student?._id || result.student?.id || result.studentId]?.profileImage) || result.student?.profileImage" [src]="getImageUrl(studentProfiles[result.student?._id || result.student?.id || result.studentId]?.profileImage || result.student?.profileImage)" alt="Student Profile" class="w-full h-full object-cover">
+                                    <span *ngIf="!(studentProfiles[result.student?._id || result.student?.id || result.studentId]?.profileImage) && !result.student?.profileImage">{{ (studentProfiles[result.student?._id || result.student?.id || result.studentId]?.firstName || result.student?.firstName)?.[0] || '?' }}{{ (studentProfiles[result.student?._id || result.student?.id || result.studentId]?.lastName || result.student?.lastName)?.[0] || '' }}</span>
                                 </div>
-                                
-                             
-                            </div>
-                            
-                            <!-- Score Tracker -->
-                            <div class="flex-1 flex flex-col justify-center items-center">
-                                <div class="flex items-center gap-2 mb-2 w-full max-w-[200px] justify-center">
-                                    <span class="font-bold text-slate-900">{{ result.score }}/{{ result.totalQuestions }}</span>
-                                    <span class="text-slate-400 font-medium text-sm">({{ result.percentage | number:'1.0-0' }}%)</span>
-                                </div>
-                                <!-- Progress Bar -->
-                                <div class="w-full max-w-[200px] h-2 bg-slate-100 rounded-full overflow-hidden">
-                                    <!-- Dynamic coloring based on pass/fail -->
-                                    <div [class]="result.isPassed ? 'h-full bg-blue-600 rounded-full' : 'h-full bg-orange-500 rounded-full'" 
-                                         [style.width]="result.percentage + '%'">
-                                    </div>
+                                <div>
+                                    <h4 class="font-bold text-slate-900 dark:text-white leading-none">{{ studentProfiles[result.student?._id || result.student?.id || result.studentId]?.firstName || result.student?.firstName }} {{ studentProfiles[result.student?._id || result.student?.id || result.studentId]?.lastName || result.student?.lastName }}</h4>
+                                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">{{ studentProfiles[result.student?._id || result.student?.id || result.studentId]?.email || result.student?.email || 'No email provided' }}</p>
                                 </div>
                             </div>
                             
-                            <!-- Status & Timing -->
-                            <div class="flex flex-col items-end w-[150px] gap-1">
-                                <span *ngIf="result.isPassed" class="px-3 py-1 bg-green-100 text-green-700 rounded-lg text-[10px] font-bold tracking-widest uppercase">
-                                    Pass
-                                </span>
-                                <span *ngIf="!result.isPassed" class="px-3 py-1 bg-red-100 text-red-700 rounded-lg text-[10px] font-bold tracking-widest uppercase">
-                                    Fail
-                                </span>
-                                <span class="text-[11px] font-medium text-slate-400 mt-1 uppercase">
-                                    {{ getTimeAgo(result.createdAt) }}
-                                </span>
+                            <div class="flex flex-col items-center sm:items-start">
+                                <div [class]="result.percentage === 100 ? 'text-sm font-black text-green-600 dark:text-green-400' : 'text-sm font-black text-slate-900 dark:text-white'">
+                                    {{ result.score }}/{{ result.totalQuestions }} <span class="text-xs font-medium text-slate-400 ml-1">({{ result.percentage | number:'1.0-0' }}%)</span>
+                                </div>
+                                <div class="mt-1 w-24 h-1.5 bg-slate-100 dark:bg-slate-700 rounded-full overflow-hidden">
+                                    <div [class]="result.isPassed ? (result.percentage === 100 ? 'h-full bg-green-500 rounded-full' : 'h-full bg-blue-600 rounded-full') : 'h-full bg-orange-500 rounded-full'" 
+                                         [style.width]="result.percentage + '%'"></div>
+                                </div>
+                            </div>
+                            
+                            <div class="flex flex-col items-end gap-2">
+                                <span *ngIf="result.isPassed" class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400 uppercase tracking-wider">Pass</span>
+                                <span *ngIf="!result.isPassed" class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400 uppercase tracking-wider">Fail</span>
+                                <p class="text-[10px] font-medium text-slate-500 dark:text-slate-400">{{ getTimeAgo(result.createdAt) }}</p>
                             </div>
                         </div>
 

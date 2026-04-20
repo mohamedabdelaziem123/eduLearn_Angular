@@ -1,0 +1,174 @@
+<div class="flex flex-col min-h-screen w-full bg-[#f8f9fc] font-inter text-slate-800">
+    <app-nav-bar [isTeacherNav]="true" activeRoute="questions"></app-nav-bar>
+
+    <main class="flex-1 overflow-y-auto px-8 py-10">
+        <div class="max-w-[1200px] mx-auto flex flex-col gap-6">
+            
+            <!-- Breadcrumbs -->
+            <nav aria-label="Breadcrumb" class="flex text-sm text-slate-500">
+                <ol class="inline-flex items-center space-x-1 md:space-x-2">
+                    <li><a routerLink="/questions" class="hover:text-blue-600 cursor-pointer font-medium">Questions Bank</a></li>
+                    <li><span class="mx-1 text-slate-300">/</span></li>
+                    <li class="text-slate-900 font-bold">Add New Question</li>
+                </ol>
+            </nav>
+
+            <form [formGroup]="questionForm" (ngSubmit)="onSubmit()" class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+                
+                <!-- LEFT COLUMN: Main Form (8 cols) -->
+                <div class="col-span-1 lg:col-span-8 bg-white rounded-2xl border border-gray-100 shadow-sm p-8 flex flex-col gap-8">
+                    
+                    <div class="flex flex-col border-b border-gray-50 pb-4">
+                        <h2 class="text-2xl font-black text-slate-900 tracking-tight">New Multiple Choice Question</h2>
+                        <p class="text-slate-400 text-sm font-medium mt-1">Fill in the details below to create a new assessment item.</p>
+                    </div>
+
+                    <!-- Course and Lesson row -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="flex flex-col gap-2">
+                            <label class="text-[13px] font-bold text-slate-700">Target Course</label>
+                            <app-dropdown-menu 
+                                [options]="courseDropdownOptions" 
+                                [selectedValue]="questionForm.get('courseId')?.value"
+                                (selectionChange)="onCourseSelectDropdown($event)"
+                                placeholder="Select a course">
+                            </app-dropdown-menu>
+                        </div>
+
+                        <div class="flex flex-col gap-2">
+                            <label class="text-[13px] font-bold text-slate-700">Target Lesson</label>
+                            <app-dropdown-menu 
+                                [options]="lessonDropdownOptions" 
+                                [selectedValue]="questionForm.get('lessonId')?.value"
+                                (selectionChange)="onLessonSelectDropdown($event)"
+                                [disabled]="!questionForm.get('courseId')?.value"
+                                placeholder="Select a lesson">
+                            </app-dropdown-menu>
+                        </div>
+                    </div>
+
+                    <!-- Question Text -->
+                    <div class="flex flex-col gap-2">
+                        <label class="text-[13px] font-bold text-slate-700">Question Text</label>
+                        <textarea formControlName="title" rows="4" placeholder="Type your question here..."
+                                  class="w-full px-4 py-3 rounded-xl border border-gray-200 bg-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"></textarea>
+                    </div>
+
+                    <!-- Difficulty Cards -->
+                    <div class="flex flex-col gap-3">
+                        <label class="text-[13px] font-bold text-slate-700">Difficulty Level</label>
+                        <div class="grid grid-cols-3 gap-4">
+                            <!-- Easy -->
+                            <div (click)="setDifficulty('EASY')" 
+                                 [class]="currentDifficulty === 'EASY' 
+                                    ? 'bg-green-50/50 border-2 border-green-500 rounded-xl p-4 flex flex-col items-center justify-center cursor-pointer text-green-700' 
+                                    : 'bg-slate-50 border border-transparent rounded-xl p-4 flex flex-col items-center justify-center cursor-pointer text-slate-600 hover:bg-slate-100 transition-colors'">
+                                <span class="material-symbols-outlined text-3xl text-green-500">sentiment_satisfied</span>
+                                <span class="text-xs font-bold mt-1">Easy</span>
+                            </div>
+                            <!-- Medium -->
+                            <div (click)="setDifficulty('MEDIUM')" 
+                                 [class]="currentDifficulty === 'MEDIUM' 
+                                    ? 'bg-amber-50/50 border-2 border-amber-500 rounded-xl p-4 flex flex-col items-center justify-center cursor-pointer text-amber-700' 
+                                    : 'bg-slate-50 border border-transparent rounded-xl p-4 flex flex-col items-center justify-center cursor-pointer text-slate-600 hover:bg-slate-100 transition-colors'">
+                                <span class="material-symbols-outlined text-3xl text-amber-500">sentiment_neutral</span>
+                                <span class="text-xs font-bold mt-1">Medium</span>
+                            </div>
+                            <!-- Hard -->
+                            <div (click)="setDifficulty('HARD')" 
+                                 [class]="currentDifficulty === 'HARD' 
+                                    ? 'bg-red-50/50 border-2 border-red-500 rounded-xl p-4 flex flex-col items-center justify-center cursor-pointer text-red-700' 
+                                    : 'bg-slate-50 border border-transparent rounded-xl p-4 flex flex-col items-center justify-center cursor-pointer text-slate-600 hover:bg-slate-100 transition-colors'">
+                                <span class="material-symbols-outlined text-3xl text-red-400">sentiment_dissatisfied</span>
+                                <span class="text-xs font-bold mt-1">Hard</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Options array -->
+                    <div class="flex flex-col gap-4">
+                        <div class="flex items-center justify-between">
+                            <label class="text-[13px] font-bold text-slate-700 uppercase tracking-tight">Answer Options</label>
+                            <span class="text-[11px] text-slate-400 font-medium">Select the radio button to mark the correct answer.</span>
+                        </div>
+
+                        <div formArrayName="options" class="flex flex-col gap-3">
+                            <div *ngFor="let opt of options.controls; let i = index" [formGroupName]="i" class="flex items-center gap-3">
+                                
+                                <div class="w-8 h-8 flex items-center justify-center rounded-lg bg-slate-100 text-slate-500 font-bold text-xs flex-shrink-0">
+                                    {{ ['A','B','C','D','E','F'][i] }}
+                                </div>
+
+                                <input formControlName="text" type="text" placeholder="Enter option text..."
+                                       class="flex-1 px-4 py-3 rounded-xl border border-gray-200 bg-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+
+                                <!-- Custom Radio-like toggle -->
+                                <button type="button" (click)="toggleCorrectOption(i)" 
+                                        [class]="opt.get('isCorrect')?.value 
+                                            ? 'w-6 h-6 rounded-full border-2 border-slate-500 flex items-center justify-center bg-slate-800' 
+                                            : 'w-6 h-6 rounded-full border-2 border-gray-300 flex items-center justify-center bg-white'">
+                                    <div *ngIf="opt.get('isCorrect')?.value" class="w-2.5 h-2.5 rounded-full bg-white"></div>
+                                </button>
+
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Actions Bottom -->
+                    <div class="flex items-center justify-end gap-3 pt-4 border-t border-gray-50">
+                        <button type="button" routerLink="/questions" class="px-6 py-2.5 text-slate-600 font-bold text-sm hover:underline">Cancel</button>
+                        <button type="submit" [disabled]="isSubmitting" class="px-6 py-2.5 bg-[#1e1b4b] hover:bg-black text-white rounded-xl font-bold text-sm flex items-center gap-2 transition-colors disabled:opacity-50">
+                            {{ isSubmitting ? 'Saving...' : 'Save Question' }}
+                        </button>
+                    </div>
+
+                </div>
+
+                <!-- RIGHT COLUMN: Sidebars (4 cols) -->
+                <div class="col-span-1 lg:col-span-4 flex flex-col gap-6">
+                    
+                    <!-- Tips -->
+                    <div class="bg-indigo-50/70 border border-indigo-100 rounded-2xl p-6 flex flex-col gap-4">
+                        <div class="flex items-center gap-2">
+                            <span class="material-symbols-outlined text-indigo-600 text-[24px]">emoji_objects</span>
+                            <h3 class="text-sm font-black text-indigo-900 tracking-wider uppercase">Creation Tips</h3>
+                        </div>
+                        <ul class="flex flex-col gap-3 text-indigo-800 text-[13px] font-semibold">
+                            <li class="flex items-start gap-2">
+                                <span class="material-symbols-outlined text-indigo-600 text-[18px]">check_circle</span>
+                                <div><b class="text-indigo-950 block">Keep it concise</b> Students perform better with direct and clear phrasing.</div>
+                            </li>
+                            <li class="flex items-start gap-2">
+                                <span class="material-symbols-outlined text-indigo-600 text-[18px]">language</span>
+                                <div><b class="text-indigo-950 block">Use clear language</b> Avoid jargon that isn't central to the lesson material.</div>
+                            </li>
+                            <li class="flex items-start gap-2">
+                                <span class="material-symbols-outlined text-indigo-600 text-[18px]">block</span>
+                                <div><b class="text-indigo-950 block">Avoid trick questions</b> The goal is to test knowledge, not to confuse the student.</div>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <!-- Statistics Placeholder Layout from Mockup Grid -->
+                    <div class="bg-white border border-gray-100 rounded-2xl p-6 flex flex-col gap-4 shadow-sm">
+                        <h3 class="text-sm font-bold text-slate-800">Question Statistics</h3>
+                        <div class="flex justify-between items-center text-sm">
+                            <span class="text-slate-500 font-medium">Total in Course</span>
+                            <span class="font-extrabold text-slate-800">124</span>
+                        </div>
+                        <div class="flex justify-between items-center text-sm border-t border-gray-50 pt-2">
+                            <span class="text-slate-500 font-medium">Average Difficulty</span>
+                            <span class="font-extrabold text-amber-600">Medium</span>
+                        </div>
+                        <div class="mt-2 h-32 bg-indigo-50 flex items-center justify-center rounded-xl overflow-hidden p-2">
+                            <span class="material-symbols-outlined text-4xl text-indigo-200">bar_chart</span>
+                        </div>
+                    </div>
+
+                </div>
+
+            </form>
+
+        </div>
+    </main>
+</div>

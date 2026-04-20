@@ -1,0 +1,67 @@
+<div class="min-h-screen bg-slate-50 flex flex-col font-inter text-slate-800">
+
+    <!-- Minimal Header -->
+    <header class="w-full px-8 py-6 flex items-center justify-between col-span-12 shrink-0">
+        <!-- Brand -->
+        <a routerLink="/login"
+            class="flex items-center gap-2 font-extrabold text-2xl text-slate-900 transition-opacity hover:opacity-80">
+            <svg class="w-8 h-8 text-indigo-600" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
+                fill="currentColor">
+                <path
+                    d="M12 3L1 9l4 2.18V15c0 1.1.9 2 2 2h10a2 2 0 002-2v-3.82L23 9 12 3zm6 12H6v-2.73L12 15l6-2.73V15z" />
+            </svg>
+            <span>eduLearn</span>
+        </a>
+    </header>
+
+    <!-- Main Content Centered -->
+    <main class="flex-1 flex flex-col items-center justify-center px-4 w-full max-w-xl mx-auto -mt-16 text-center">
+
+        <!-- Breadcrumb -->
+        <div
+            class="flex items-center gap-3 text-sm font-semibold mb-10 bg-white shadow-sm border border-slate-100 rounded-full px-5 py-2">
+            <span class="text-indigo-600">Account Creation</span>
+            <span class="text-slate-300">›</span>
+            <span class="text-red-500 font-bold">Verification Failed</span>
+        </div>
+
+        <!-- Error X Icon -->
+        <div
+            class="w-28 h-28 bg-red-600 text-white rounded-full flex items-center justify-center mb-8 shadow-2xl shadow-red-600/40">
+            <div class="w-12 h-12 bg-white rounded-full text-red-600 flex items-center justify-center">
+                <svg class="w-8 h-8 font-black" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                    stroke="currentColor" stroke-width="4">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+            </div>
+        </div>
+
+        <!-- Titles -->
+        <div class="mb-8 w-full">
+            <h1 class="text-4xl sm:text-5xl font-extrabold text-slate-900 mb-4 tracking-tight">Verification Failed</h1>
+            <p class="text-slate-500 font-medium max-w-sm mx-auto text-lg">We couldn't verify your email address. The link may have expired or is invalid. Please try again.</p>
+        </div>
+
+        <!-- Actions -->
+        <div class="w-full max-w-sm mx-auto flex flex-col gap-6">
+
+            <button type="button" routerLink="/confirm-email"
+                class="w-full py-4 bg-red-600 text-white font-bold rounded-full shadow-lg shadow-red-600/30 hover:bg-red-700 transition-all text-lg tracking-wide">
+                Retry Verification
+            </button>
+
+            <p class="text-slate-400 font-semibold text-sm">
+                Need help? <a href="#"
+                    class="text-red-600 hover:text-red-700 transition-colors cursor-pointer">Contact Support</a>
+            </p>
+
+        </div>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="w-full py-8 text-center text-xs font-bold tracking-widest text-slate-400 mt-auto uppercase">
+        <div class="w-16 h-1 bg-slate-200 mx-auto mb-4 rounded-full"></div>
+        Secure Access
+    </footer>
+</div>

@@ -85,11 +85,12 @@ export class TeacherQuizzesComponent implements OnInit, OnDestroy {
   }
 
   selectCourse(course: any): void {
-    if (this.selectedCourse?._id === course._id) return;
+    const cid = course._id || course.id;
+    if ((this.selectedCourse?._id || this.selectedCourse?.id) === cid) return;
     this.selectedCourse = course;
     this.selectedLesson = null;
     this.studentResults = [];
-    this.loadLessons(course._id);
+    this.loadLessons(cid);
   }
 
   loadLessons(courseId: string): void {
@@ -110,7 +111,8 @@ export class TeacherQuizzesComponent implements OnInit, OnDestroy {
   }
 
   selectLesson(lesson: any): void {
-    if (this.selectedLesson?._id === lesson._id) return;
+    const lid = lesson._id || lesson.id;
+    if ((this.selectedLesson?._id || this.selectedLesson?.id) === lid) return;
     this.selectedLesson = lesson;
     this.studentResults = [];
     this.currentResultsPage = 1;
@@ -123,13 +125,13 @@ export class TeacherQuizzesComponent implements OnInit, OnDestroy {
     this.isLoadingResults = true;
     const searchVal = this.searchControl.value || '';
 
-    this.quizService.getResultsByLesson(this.selectedLesson._id, { page: this.currentResultsPage, size: 4, search: searchVal }).subscribe({
+    this.quizService.getResultsByLesson(this.selectedLesson._id || this.selectedLesson.id, { page: this.currentResultsPage, size: 4, search: searchVal }).subscribe({
       next: (res: any) => {
         const results = res?.data?.results || [];
 
         // Hydrate background profiles via AdminService using the Postman-verified schema
         results.forEach((r: any) => {
-          const sid = r.student?._id || r.studentId;
+          const sid = r.student?._id || r.student?.id || r.studentId;
           if (sid && !this.studentProfiles[sid]) {
             this.adminService.getUserDetails(sid).subscribe({
               next: (userRes: any) => {

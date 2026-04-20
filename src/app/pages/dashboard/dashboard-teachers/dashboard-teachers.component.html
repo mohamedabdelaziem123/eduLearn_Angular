@@ -94,7 +94,7 @@
                                         <div class="flex items-center gap-4">
                                             <div
                                                 class="w-11 h-11 rounded-full overflow-hidden bg-slate-100 shrink-0 shadow-sm border border-gray-200/50 flex items-center justify-center">
-                                                <img *ngIf="teacher.profileImage && getImageUrl(teacher.profileImage)" 
+                                                <img referrerpolicy="no-referrer" *ngIf="teacher.profileImage && getImageUrl(teacher.profileImage)" 
                                                     [src]="getImageUrl(teacher.profileImage)"
                                                     [alt]="getTeacherName(teacher)" 
                                                     class="w-full h-full object-cover" />

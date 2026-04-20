@@ -75,11 +75,13 @@ export interface QuizAttemptDetailResponse {
 
 export interface StartQuizOption {
   _id: EntityId;
+  id?: EntityId;
   text: string;
 }
 
 export interface StartQuizQuestion {
   _id: EntityId;
+  id?: EntityId;
   title: string;
   type: string;
   options: StartQuizOption[];
@@ -87,6 +89,7 @@ export interface StartQuizQuestion {
 
 export interface StartQuizResponse {
   _id: EntityId;
+  id?: EntityId;
   title: string;
   description: string;
   timeLimitMinutes: number;
@@ -127,6 +130,7 @@ export interface AttemptSummary {
   attemptId: EntityId;
   quizTitle: string;
   lessonTitle: string | null;
+  lessonId: string;
   score: number;
   totalQuestions: number;
   percentage: number;

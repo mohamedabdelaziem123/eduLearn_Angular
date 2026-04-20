@@ -1,7 +1,9 @@
 <header class="h-[76px] bg-white w-full flex items-center justify-between px-8 border-b border-gray-100 shrink-0 relative">
     
-    <!-- LEFT: Logo (Only for Teacher Nav) -->
-    <div *ngIf="isTeacherNav" class="flex items-center gap-3 w-[250px]">
+  
+    <!-- eduLearn logo: only for students and teachers-->
+    @if (isStudent || isTeacherNav) {
+    <div class="flex items-center gap-3 w-[250px]">
         <div class="bg-[#2563eb] rounded-lg p-1.5 flex items-center justify-center">
             <span class="material-symbols-outlined text-white text-xl">school</span>
         </div>
@@ -9,45 +11,82 @@
             <h1 class="text-slate-900 text-xl font-bold tracking-wide leading-tight uppercase relative top-[2px]">eduLearn</h1>
         </div>
     </div>
+    } @else {
+    <div class="w-[250px]"></div>
+    }
 
     <!-- CENTER: Navigation Links (Only for Teacher Nav) -->
-    <div *ngIf="isTeacherNav" class="absolute left-1/2 -translate-x-1/2 hidden md:flex items-center gap-8 h-full">
+    @if (isTeacherNav) {
+    <div class="absolute left-1/2 -translate-x-1/2 hidden md:flex items-center gap-8 h-full">
         <a routerLink="/dashboard/teacher-courses" 
            [class]="activeRoute === 'dashboard' ? 'text-sm font-bold text-[#2563eb] h-full flex items-center border-b-[3px] border-[#2563eb] pt-[3px]' : 'text-sm font-semibold text-slate-500 hover:text-slate-900 h-full flex items-center border-b-[3px] border-transparent pt-[3px] transition-colors'">
-            Dashboard
-        </a>
-        <a routerLink="/login" 
-           [class]="activeRoute === 'courses' ? 'text-sm font-bold text-[#2563eb] h-full flex items-center border-b-[3px] border-[#2563eb] pt-[3px]' : 'text-sm font-semibold text-slate-500 hover:text-slate-900 h-full flex items-center border-b-[3px] border-transparent pt-[3px] transition-colors'">
             Courses
         </a>
+       
         <a routerLink="/teacher-quizzes" 
            [class]="activeRoute === 'quizzes' ? 'text-sm font-bold text-[#2563eb] h-full flex items-center border-b-[3px] border-[#2563eb] pt-[3px]' : 'text-sm font-semibold text-slate-500 hover:text-slate-900 h-full flex items-center border-b-[3px] border-transparent pt-[3px] transition-colors'">
             Quizzes
         </a>
-        <a routerLink="/dashboard/teacher-questions" 
+        <a routerLink="/questions" 
            [class]="activeRoute === 'questions' ? 'text-sm font-bold text-[#2563eb] h-full flex items-center border-b-[3px] border-[#2563eb] pt-[3px]' : 'text-sm font-semibold text-slate-500 hover:text-slate-900 h-full flex items-center border-b-[3px] border-transparent pt-[3px] transition-colors'">
             Questions
         </a>
     </div>
+    }
+
+    <!-- CENTER: Navigation Links (Only for Student Nav) -->
+    @if (!isTeacherNav) {
+    <div class="absolute left-1/2 -translate-x-1/2 hidden md:flex items-center gap-8 h-full">
+        @if (isStudent) {
+        <a routerLink="/my-courses" 
+           [class]="activeRoute === 'my-courses' ? 'text-sm font-bold text-[#2563eb] h-full flex items-center border-b-[3px] border-[#2563eb] pt-[3px]' : 'text-sm font-semibold text-slate-500 hover:text-slate-900 h-full flex items-center border-b-[3px] border-transparent pt-[3px] transition-colors'">
+            My Courses
+        </a>
+        <a routerLink="/student-results" 
+           [class]="activeRoute === 'results' ? 'text-sm font-bold text-[#2563eb] h-full flex items-center border-b-[3px] border-[#2563eb] pt-[3px]' : 'text-sm font-semibold text-slate-500 hover:text-slate-900 h-full flex items-center border-b-[3px] border-transparent pt-[3px] transition-colors'">
+            My Results
+        </a>
+        <a routerLink="/discovery" 
+           [class]="activeRoute === 'discovery' ? 'text-sm font-bold text-[#2563eb] h-full flex items-center border-b-[3px] border-[#2563eb] pt-[3px]' : 'text-sm font-semibold text-slate-500 hover:text-slate-900 h-full flex items-center border-b-[3px] border-transparent pt-[3px] transition-colors'">
+            Discovery
+        </a>
+        <a routerLink="/cart" 
+           [class]="activeRoute === 'cart' ? 'text-sm font-bold text-[#2563eb] h-full flex items-center border-b-[3px] border-[#2563eb] pt-[3px] gap-1' : 'text-sm font-semibold text-slate-500 hover:text-slate-900 h-full flex items-center border-b-[3px] border-transparent pt-[3px] transition-colors gap-1'">
+            Cart
+        </a>
+        }
+        
+    </div>
+    }
 
     <!-- RIGHT: Profile & Actions (Always visible) -->
     <div [class]="isTeacherNav ? 'flex justify-end w-[250px]' : 'w-full flex justify-end'">
         <div class="flex-shrink-0 flex items-center gap-6">
-            
-            <!-- Notification Bell (If enabled) -->
-            <div *ngIf="showBell" class="relative cursor-pointer text-slate-400 hover:text-slate-600 transition-colors">
-                <span class="material-symbols-outlined text-[26px]">notifications</span>
-                <div class="absolute top-[2px] right-[4px] w-[8px] h-[8px] bg-red-500 rounded-full border border-white"></div>
-            </div>
+        
 
             <!-- Profile Circle -->
-            <div *ngIf="adminProfile?.profileImage"
-                class="h-9 w-9 rounded-full bg-[#92b1f5] text-white flex items-center justify-center cursor-pointer shadow-sm overflow-hidden border border-gray-100">
-                <img [src]="adminProfile.profileImage" alt="Profile" class="w-full h-full object-cover">
-            </div>
-            <div *ngIf="!adminProfile?.profileImage"
-                class="h-9 w-9 rounded-full bg-[#92b1f5] text-white flex items-center justify-center cursor-pointer shadow-sm">
-                <span class="material-symbols-outlined text-xl">person</span>
+            <div class="flex items-center gap-3">
+                <!-- User Name -->
+                @if (adminProfile) {
+                <span class="text-sm font-bold text-slate-700 hidden sm:block">
+                    {{ adminProfile?.name || adminProfile?.firstName || adminProfile?.username || 'Teacher' }}
+                </span>
+                }
+                
+                @if (adminProfile?.profileImage) {
+                <div class="h-9 w-9 rounded-full bg-[#92b1f5] text-white flex items-center justify-center cursor-pointer shadow-sm overflow-hidden border border-gray-100">
+                    <img referrerpolicy="no-referrer" [src]="getImageUrl(adminProfile.profileImage)" alt="Profile" class="w-full h-full object-cover">
+                </div>
+                } @else {
+                <div class="h-9 w-9 rounded-full bg-[#92b1f5] text-white flex items-center justify-center cursor-pointer shadow-sm">
+                    <span class="material-symbols-outlined text-xl">person</span>
+                </div>
+                }
+
+                <!-- Logout -->
+                <button (click)="logout()" title="Logout" class="flex items-center justify-center ml-2 w-9 h-9 rounded-full text-slate-400 hover:text-red-500 hover:bg-red-50 transition-colors">
+                    <span class="material-symbols-outlined text-[20px]">logout</span>
+                </button>
             </div>
         </div>
     </div>

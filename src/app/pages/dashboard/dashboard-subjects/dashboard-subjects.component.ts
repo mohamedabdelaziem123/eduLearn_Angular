@@ -76,11 +76,13 @@ export class DashboardSubjectsComponent implements OnInit {
         this.currentPage = 1;
     }
 
-    editSubject(subjectId: string): void {
+    editSubject(subjectId: string | undefined): void {
+        if (!subjectId) return;
         this.router.navigate(['/dashboard/subjects/edit', subjectId]);
     }
 
-    deleteSubject(subjectId: string): void {
+    deleteSubject(subjectId: string | undefined): void {
+        if (!subjectId) return;
         if (!confirm('Are you sure you want to delete this subject? This action cannot be undone.')) {
             return;
         }
@@ -88,7 +90,7 @@ export class DashboardSubjectsComponent implements OnInit {
         this.adminService.deleteSubject(subjectId).subscribe({
             next: (res) => {
                 console.log('Subject deleted successfully:', res);
-                this.subjects = this.subjects.filter(s => s._id !== subjectId);
+                this.subjects = this.subjects.filter(s => (s._id || s.id) !== subjectId);
                 this.filterSubjects(this.searchControl.value || '');
                 
                 if (this.paginatedSubjects.length === 0 && this.currentPage > 1) {
@@ -103,7 +105,12 @@ export class DashboardSubjectsComponent implements OnInit {
     }
 
     getCourseCount(subject: Subject): number {
-        return subject.courses?.length || 0;
+        if (!subject.courses) return 0;
+        if (Array.isArray(subject.courses)) {
+            // TypeORM simple-array sometimes parses empty columns as ['']
+            return subject.courses.filter(c => c && String(c).trim().length > 0).length;
+        }
+        return 0;
     }
 
     // Pagination methods

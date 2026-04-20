@@ -57,13 +57,13 @@
                         </thead>
                         <tbody class="divide-y divide-gray-50">
 
-                            @for (student of students; track student._id) {
+                            @for (student of students; track student._id || student.id) {
                             <tr class="hover:bg-gray-50/50 transition-colors group">
                                 <td class="px-6 py-4">
                                     <div class="flex items-center gap-4">
                                         <div
                                             class="h-10 w-10 rounded-full flex-shrink-0 bg-indigo-100 text-indigo-700 font-bold overflow-hidden flex items-center justify-center">
-                                            <img *ngIf="student.profileImage && getImageUrl(student.profileImage)" 
+                                            <img referrerpolicy="no-referrer" *ngIf="student.profileImage && getImageUrl(student.profileImage)" 
                                                 [src]="getImageUrl(student.profileImage)"
                                                 [alt]="student.username" 
                                                 class="h-full w-full object-cover" />
@@ -92,10 +92,10 @@
                                 </td>
                                 <td class="px-6 py-4 text-right">
                                     @if (!student.isBlocked) {
-                                    <button (click)="blockUser(student._id)"
+                                    <button (click)="blockUser(student._id || student.id)"
                                         class="text-sm font-medium text-red-500 hover:text-red-700 transition-colors">Block</button>
                                     } @else {
-                                    <button (click)="unblockUser(student._id)"
+                                    <button (click)="unblockUser(student._id || student.id)"
                                         class="text-sm font-medium text-[#168a4e] hover:text-green-700 transition-colors">Unblock</button>
                                     }
                                 </td>

@@ -10,7 +10,8 @@ import { DropdownMenuComponent } from '../../../components/ui/dropdown-menu/drop
 import { LessonService } from '../../../services/lesson.service';
 
 export interface Student {
-  _id: string; // Real API likely uses MongoDB ObjectIds
+  _id?: string;
+  id?: string;
   username: string;
   email: string;
   phone?: string;
@@ -140,11 +141,12 @@ export class DashboardStudentsComponent implements OnInit {
   }
 
 
-  blockUser(userId: string): void {
+  blockUser(userId: string | undefined): void {
+    if (!userId) return;
     if (!confirm('Are you sure you want to block this user?')) return;
     this.adminService.blockStudent(userId).subscribe({
       next: () => {
-        const student = this.students.find(s => s._id === userId);
+        const student = this.students.find(s => (s._id || s.id) === userId);
         if (student) student.isBlocked = true;
       },
       error: (err: any) => alert('Failed to block user.')
@@ -152,11 +154,12 @@ export class DashboardStudentsComponent implements OnInit {
   }
 
 
-  unblockUser(userId: string): void {
+  unblockUser(userId: string | undefined): void {
+    if (!userId) return;
     if (!confirm('Are you sure you want to unblock this user?')) return;
     this.adminService.unblockStudent(userId).subscribe({
       next: () => {
-        const student = this.students.find(s => s._id === userId);
+        const student = this.students.find(s => (s._id || s.id) === userId);
         if (student) student.isBlocked = false;
       },
       error: (err: any) => alert('Failed to unblock user.')

@@ -67,11 +67,11 @@ export class AdminService {
     // ═══════════════════════════════════════════════════════════════════════════
 
     blockStudent(id: string): Observable<any> {
-        return this.http.patch(`${environment.apiUrl}/admin/students/${id}/block`, {}, { headers: this.getHeaders() });
+        return this.http.patch(`${environment.apiUrl}/admin/block/${id}`, {}, { headers: this.getHeaders() });
     }
 
     unblockStudent(id: string): Observable<any> {
-        return this.http.patch(`${environment.apiUrl}/admin/students/${id}/unblock`, {}, { headers: this.getHeaders() });
+        return this.http.patch(`${environment.apiUrl}/admin/unblock/${id}`, {}, { headers: this.getHeaders() });
     }
 
     // ═══════════════════════════════════════════════════════════════════════════
@@ -114,7 +114,7 @@ export class AdminService {
     // ═══════════════════════════════════════════════════════════════════════════
 
     getDashboardStats(): Observable<DashboardStatsResponse> {
-        return this.http.get<DashboardStatsResponse>(`${environment.apiUrl}/admin/dashboard-stats`);
+        return this.http.get<DashboardStatsResponse>(`${environment.apiUrl}/admin/dashboard-stats`, { headers: this.getHeaders() });
     }
 
     // ═══════════════════════════════════════════════════════════════════════════

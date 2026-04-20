@@ -22,7 +22,7 @@
                     
                     <!-- Top Image Area -->
                     <div class="relative h-[200px] w-full bg-slate-900 overflow-hidden">
-                        <img *ngIf="course.image" [src]="getImageUrl(course.image)" class="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity duration-300" [alt]="course.title">
+                        <img referrerpolicy="no-referrer" *ngIf="course.image" [src]="getImageUrl(course.image)" class="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity duration-300" [alt]="course.title">
                         <div *ngIf="!course.image" [class]="'w-full h-full flex items-center justify-center opacity-80 ' + getSubjectIcon(course.subjectId?.name || course.subject?.name || course.subject).hue">
                             <span class="material-symbols-outlined text-white text-[64px] opacity-50">{{ getSubjectIcon(course.subjectId?.name || course.subject?.name || course.subject).icon }}</span>
                         </div>
@@ -53,14 +53,10 @@
                                 <span class="material-symbols-outlined text-[18px]">auto_stories</span>
                                 <span>{{ course.lessons?.length || 0 }} Lessons</span>
                             </div>
-                            <div class="flex items-center gap-1.5">
-                                <span class="material-symbols-outlined text-[18px]">group</span>
-                                <span>{{ course.enrolledStudents || 0 }} Students</span>
-                            </div>
                         </div>
 
                         <div class="flex items-center gap-2 mt-auto">
-                            <button class="flex-1 bg-[#1e1b4b] text-white font-semibold py-3.5 rounded-xl text-[14px] flex items-center justify-center gap-2 hover:bg-[#312e81] shadow-md transition-all">
+                            <button [routerLink]="['/manage-lesson', course._id]" class="flex-1 bg-[#1e1b4b] text-white font-semibold py-3.5 rounded-xl text-[14px] flex items-center justify-center gap-2 hover:bg-[#312e81] shadow-md transition-all cursor-pointer">
                                 Manage <span class="material-symbols-outlined text-[18px]">arrow_forward</span>
                             </button>
                             
